@@ -1,0 +1,43 @@
+{
+    "docId": "string",
+    "tripData": {
+        "travelPlan": {
+            "budget": "string",
+            "duration": "string",
+            "hotels": [
+                {
+                    "address": "string",
+                    "description": "string",
+                    "hotelName": "string",
+                    "imageUrl": "string",
+                    "price": "string",
+                    "rating": "string"
+                }
+            ],
+            "itinerary": [
+                {
+                    "day": "string",
+                    "plan": [
+                        {
+                            "imageUrl": "string",
+                            "placeDetails": "string",
+                            "placeName": "string",
+                            "rating": "string",
+                            "ticketPricing": "string",
+                            "travelTime": "string"
+                        }
+                    ]
+                }
+            ],
+            "location": "string",
+            "travelers": "string"
+        }
+    },
+    "userEmail": "string",
+    "userSelection": {
+        "budget": "string",
+        "days": "string",
+        "place": "string",
+        "travelers": "string"
+    }
+}
