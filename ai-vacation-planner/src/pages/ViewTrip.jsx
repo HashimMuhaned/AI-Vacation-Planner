@@ -42,14 +42,18 @@ const ViewTrip = () => {
   }, [tripId]);
 
   const cleanedTriptDateTravelPlan = tripData?.tripData?.tripData?.travelPlan;
-  const cleanedTripDateHotelsInfo = tripData?.tripData?.tripData?.travelPlan?.hotels;
+  const cleanedTripDateHotelsInfo =
+    tripData?.tripData?.tripData?.travelPlan?.hotels;
   // const cleanedTripDatePlacesToVisit = tripData?.tripData?.tripData?.travelPlan;
 
   return (
-    <div className="p-5 md:px-20 lg:px-44 xl:px-56">
+    <div className="mt-25 p-5 md:px-20 lg:px-44 xl:px-56 md:mt-25">
       <InfoSection tripData={tripData} loading={loading} />
       <HotelsInfo hotels={cleanedTripDateHotelsInfo} loading={loading} />
-      <PlacesToVisit travelPlan={cleanedTriptDateTravelPlan} loading={loading} />
+      <PlacesToVisit
+        travelPlan={cleanedTriptDateTravelPlan}
+        loading={loading}
+      />
       <Footer />
     </div>
   );

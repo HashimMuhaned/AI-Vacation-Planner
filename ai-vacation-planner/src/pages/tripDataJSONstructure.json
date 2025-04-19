@@ -1,43 +1,56 @@
 {
-    "docId": "string",
-    "tripData": {
-        "travelPlan": {
-            "budget": "string",
-            "duration": "string",
-            "hotels": [
-                {
-                    "address": "string",
-                    "description": "string",
-                    "hotelName": "string",
-                    "imageUrl": "string",
-                    "price": "string",
-                    "rating": "string"
-                }
-            ],
-            "itinerary": [
-                {
-                    "day": "string",
-                    "plan": [
-                        {
-                            "imageUrl": "string",
-                            "placeDetails": "string",
-                            "placeName": "string",
-                            "rating": "string",
-                            "ticketPricing": "string",
-                            "travelTime": "string"
-                        }
-                    ]
-                }
-            ],
-            "location": "string",
-            "travelers": "string"
+  "docId": "id",
+  "tripData": {
+    "travelPlan": {
+      "budget": "NUMBER",
+      "duration": "NUMBER",
+      "hotels": [
+        {
+          "address": "STRING",
+          "description": "STRING",
+          "hotelName": "STRING",
+          "imageUrl": "STRING",
+          "price": "STRING",
+          "rating": "STRING"
         }
-    },
-    "userEmail": "string",
-    "userSelection": {
-        "budget": "string",
-        "days": "string",
-        "place": "string",
-        "travelers": "string"
+      ],
+      "itinerary": [
+        {
+          "day": "STRING",
+          "plan": [
+            {
+              "imageUrl": "STRING",
+              "placeDetails": "STRING",
+              "placeName": "STRING",
+              "rating": "STRING",
+              "ticketPricing": "STRING",
+              "travelTime": "STRING",
+              "restaurants": [
+                {
+                  "restaurantName": "STRING",
+                  "restaurantDetails": "STRING",
+                  "restaurantRating": "STRING",
+                  "restaurantType": {
+                    "Vegetarian": "bool",
+                    "Halal": "bool",
+                    "Non-Vegetarian": "bool",
+                    "Dessert": "bool"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "location": "STRING",
+      "travelers": "STRING"
     }
+  },
+  "userEmail": "STRING",
+  "userSelection": {
+    "budget": "NUMBER",
+    "days": "STRING",
+    "place": "STRING",
+    "travelers": "STRING"
+  }
 }

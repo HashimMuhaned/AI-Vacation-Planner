@@ -1,11 +1,19 @@
-import React, { Fragment } from "react";
+import React, { useEffect } from "react";
 import HeroSection from "@/components/custom/HeroSection";
+import CallToAction from "./HomePageComponents/CallToAction";
+import Footer from "./HomePageComponents/Footer";
+import HowItWorks from "./HomePageComponents/HowItWorks";
+import Features from "./HomePageComponents/Features";
 
 const HomePage = () => {
   return (
-    <Fragment>
+    <div className="px-10 md:px-40">
       <HeroSection />
-    </Fragment>
+      <Features />
+      <HowItWorks />
+      <CallToAction />
+      <Footer />
+    </div>
   );
 };
 

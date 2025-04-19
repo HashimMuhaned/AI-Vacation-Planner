@@ -10,7 +10,7 @@ import GoogleLogin from "@/services/GoogleLogin";
 
 export default function LoginDialog({ openDialog, setOpenDialog }) {
   return (
-    <Dialog open={openDialog}>
+    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Login</DialogTitle>

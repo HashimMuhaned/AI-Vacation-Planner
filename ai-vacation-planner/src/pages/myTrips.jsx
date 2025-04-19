@@ -5,13 +5,33 @@ import { db } from "../services/FirebaseConfig";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { useAuth } from "@/context/GoogleAuth";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-
 import UserTripCardItem from "./components/UserTripCardItem";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut",
+      when: "beforeChildren",
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+};
 
 const myTrips = () => {
   const navigate = useNavigate();
   const [userTrips, setUserTrips] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   const { user } = useAuth();
   useEffect(() => {
     const getUserTrips = async () => {
@@ -51,31 +71,72 @@ const myTrips = () => {
 
     getUserTrips();
   }, [navigate]); // include navigate in deps
+
+  useEffect(() => {
+    if (userTrips.length === 0) {
+      setImagesLoaded(true);
+      return;
+    }
+
+    let loadedCount = 0;
+
+    const handleImageLoad = () => {
+      loadedCount++;
+      if (loadedCount === userTrips.length) {
+        setImagesLoaded(true);
+      }
+    };
+
+    // Timeout fallback in case some images fail to load
+    const timeout = setTimeout(() => {
+      setImagesLoaded(true);
+    }, 5000);
+
+    userTrips.forEach((trip) => {
+      const img = new Image();
+      img.src = trip.imageUrl; // Assuming trip.imageUrl is the image source used in UserTripCardItem
+      img.onload = handleImageLoad;
+      img.onerror = handleImageLoad;
+    });
+
+    return () => clearTimeout(timeout);
+  }, [userTrips]);
+
+  const isReady = !loading && imagesLoaded;
+
   return (
-    <div className="sm:px-10 md:px-20 lg:px-56 xl:px-72 px-5 my-10">
-      {loading ? (
-        <div>
-          <div className="flex flex-col items-center justify-center h-screen">
-            <AiOutlineLoading3Quarters className="animate-spin text-4xl" />
-          </div>
+    <div className="sm:px-10 md:px-20 lg:px-56 xl:px-72 px-5 my-25">
+      {!isReady ? (
+        <div className="flex flex-col items-center justify-center h-screen">
+          <AiOutlineLoading3Quarters className="animate-spin text-4xl" />
         </div>
       ) : (
-        <div>
-          <h2 className="font-bold text-3xl">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.h2 className="font-bold text-3xl" variants={itemVariants}>
             {userTrips.length > 0 ? (
               "Your Trips"
             ) : (
               <Link to={"/create-trip"} className="underline">
-                No Trips Yet, Make One ?
+                No Trips Yet, Make One?
               </Link>
             )}
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mt-10">
-            {userTrips?.map((trip, index) => (
-              <UserTripCardItem key={index} trip={trip} />
+          </motion.h2>
+
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-3 gap-5 mt-10"
+            variants={containerVariants}
+          >
+            {userTrips.map((trip, index) => (
+              <motion.div key={index} variants={itemVariants}>
+                <UserTripCardItem trip={trip} />
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   );
