@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import placeholderimg from "../../assets/placeholder.jpg"; // Placeholder image
 import { Button } from "../ui/button";
 import { FaShare } from "react-icons/fa6";
-import { getCountryImage } from "@/services/GglPlaceImgApi";
+import {
+  getCountryImage,
+  getCountryImagesUnSplash,
+} from "@/services/GglPlaceImgApi";
 // import { Card, CardContent } from "@/components/ui/card";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaRegTrashCan } from "react-icons/fa6";
@@ -44,32 +47,34 @@ const InfoSection = ({ tripData }) => {
   console.log("tripData: ", tripData);
 
   useEffect(() => {
-    const getPlacePhoto = async () => {
+    const getPlacePhotos = async () => {
       try {
         const placeName = tripData?.userSelection?.place;
-        const photoUrls = await getCountryImage(placeName);
-
-        setPlacePhoto(photoUrls);
+        const photos = await getCountryImagesUnSplash(placeName);
+        setPlacePhoto(photos); // Now an array!
       } catch (error) {
-        console.error("Error fetching country photo:", error);
+        console.error("Error fetching country photos:", error);
       }
     };
 
     if (tripData?.userSelection?.place) {
-      getPlacePhoto();
+      getPlacePhotos();
     }
   }, [tripData]);
 
   useEffect(() => {
     if (api) {
-      setCount(api.scrollSnapList().length);
-      setCurrent(api.selectedScrollSnap() + 1);
-
-      api.on("select", () => {
+      const updateSnapData = () => {
+        const snaps = api.scrollSnapList();
+        setCount(snaps.length);
         setCurrent(api.selectedScrollSnap() + 1);
-      });
+      };
+
+      updateSnapData(); // run initially
+      api.on("select", updateSnapData); // update on slide change
+      api.on("reInit", updateSnapData); // update on carousel re-render
     }
-  }, [api]);
+  }, [api, placePhoto]); // watch placePhoto too
 
   const deleteTrip = async () => {
     if (!user) {
