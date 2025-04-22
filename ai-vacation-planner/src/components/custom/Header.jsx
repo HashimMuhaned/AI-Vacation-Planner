@@ -34,6 +34,9 @@ const Header = () => {
   const location = useLocation();
   const techControls = useAnimation();
   const howItWorkControls = useAnimation();
+  const userPicture = user?.picture || "https://via.placeholder.com/150"; // Fallback image
+  const userName = user?.name;
+  const userEmail = user?.email;
 
   const handleLogout = () => {
     setLoading(true);
@@ -161,7 +164,7 @@ const Header = () => {
             <Popover>
               <PopoverTrigger>
                 <img
-                  src={user?.picture}
+                  src={userPicture}
                   alt="user"
                   height={35}
                   width={35}
@@ -172,8 +175,8 @@ const Header = () => {
                 <div className="flex flex-col gap-2 p-2">
                   <div className="flex items-center gap-2">
                     <div>
-                      <p className="text-sm font-semibold">{user?.name}</p>
-                      <p className="text-sm text-gray-500">{user?.email}</p>
+                      <p className="text-sm font-semibold">{userName}</p>
+                      <p className="text-sm text-gray-500">{userEmail}</p>
                     </div>
                   </div>
                   <Button

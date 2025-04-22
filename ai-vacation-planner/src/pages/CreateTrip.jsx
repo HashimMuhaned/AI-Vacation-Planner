@@ -235,7 +235,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
 
 📌 **What to Include:**
 
-1. **Hotel Suggestions** (3–5 options):
+1. **Hotel Suggestions** (5-7 options):
    Each hotel must include:
    - hotelName (string)
    - address (string)
@@ -245,7 +245,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
    - description (string)
 
 2. **Daily Itinerary** (for ${formData?.days} days):
-   For each day, include a list of places to visit. Each place must contain:
+   For each day, include a (4-6 options) of places to visit. Each place must contain:
    - placeName (string)
    - placeDetails (string)
    - imageUrl (string)
@@ -254,7 +254,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
    - travelTime (string, e.g., "20 mins")
    - bestTimeToVisit (string)
 
-   Each place must also list 1–2 nearby restaurants with:
+   Each place must also list 3-6 nearby restaurants with:
    - restaurantName (string)
    - restaurantDetails (string)
    - restaurantRating (string)

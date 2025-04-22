@@ -77,21 +77,11 @@ const RestaurantCardItem = ({ restaurant = {}, filterRestaurant }) => {
   }
   return (
     <div>
-      {hasError && (
+      {hasError ? (
         <div className="text-red-500 font-semibold text-lg">
           Failed to display trip.
         </div>
-      )}
-
-      {!hasError &&
-        (!filteredRestaurants || filteredRestaurants.length === 0) && (
-          <div className="text-center text-gray-500 mt-4">
-            😔 No restaurants were found.
-          </div>
-        )}
-
-      {!hasError &&
-        filteredRestaurants?.length > 0 &&
+      ) : (
         filteredRestaurants.map((r) => {
           try {
             return (
@@ -102,7 +92,7 @@ const RestaurantCardItem = ({ restaurant = {}, filterRestaurant }) => {
               >
                 <div className="border rounded-xl p-3 mt-2 flex gap-5 hover:scale-105 transition-all shadow-md cursor-pointer">
                   <img
-                    src={placePhotos?.[r.restaurantName] || placeholderimg}
+                    src={placePhotos[r.restaurantName] || placeholderimg}
                     alt={r.restaurantName}
                     className="w-[130px] h-[130px] object-cover rounded-xl"
                   />
@@ -129,7 +119,8 @@ const RestaurantCardItem = ({ restaurant = {}, filterRestaurant }) => {
             setHasError(true);
             return null;
           }
-        })}
+        })
+      )}
     </div>
   );
 };
