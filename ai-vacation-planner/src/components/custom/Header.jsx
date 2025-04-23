@@ -63,7 +63,7 @@ const Header = () => {
 
   return (
     <nav
-      className={`px-10 p-3 flex justify-between items-center md:px-20 fixed top-0 left-0 right-0 transition-all duration-300 z-99 ${
+      className={`px-5 p-3 flex justify-between items-center md:px-20 fixed top-0 left-0 right-0 transition-all duration-300 z-99 ${
         isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-4"
       }`}
     >
@@ -161,44 +161,46 @@ const Header = () => {
                 </Link>
               </motion.div>
             ) : null}
-            <Popover>
-              <PopoverTrigger>
-                <img
-                  src={userPicture}
-                  alt="user"
-                  height={35}
-                  width={35}
-                  className="rounded-full cursor-pointer"
-                />
-              </PopoverTrigger>
-              <PopoverContent>
-                <div className="flex flex-col gap-2 p-2">
-                  <div className="flex items-center gap-2">
-                    <div>
-                      <p className="text-sm font-semibold">{userName}</p>
-                      <p className="text-sm text-gray-500">{userEmail}</p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleLogout}
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <div className="flex justify-center items-center">
-                        <AiOutlineLoading3Quarters className="h-5 w-5 animate-spin" />
+            <div className="hidden md:block">
+              <Popover>
+                <PopoverTrigger>
+                  <img
+                    src={userPicture}
+                    alt="user"
+                    height={35}
+                    width={35}
+                    className="rounded-full cursor-pointer"
+                  />
+                </PopoverTrigger>
+                <PopoverContent>
+                  <div className="flex flex-col gap-2 p-2">
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <p className="text-sm font-semibold">{userName}</p>
+                        <p className="text-sm text-gray-500">{userEmail}</p>
                       </div>
-                    ) : (
-                      "Logout"
-                    )}
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    Switch Account
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleLogout}
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <div className="flex justify-center items-center">
+                          <AiOutlineLoading3Quarters className="h-5 w-5 animate-spin" />
+                        </div>
+                      ) : (
+                        "Logout"
+                      )}
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      Switch Account
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         ) : (
           <div>
@@ -222,6 +224,7 @@ const Header = () => {
       </div>
       <LoginDialog openDialog={openDialog} setOpenDialog={setOpenDialog} />
 
+      {/* Mobile */}
       <div className="md:hidden">
         <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2">
           {isMenuOpen ? (
@@ -232,8 +235,68 @@ const Header = () => {
         </button>
       </div>
       {isMenuOpen && (
-        <div className="md:hidden bg-white absolute top-full left-0 w-full border-t shadow-lg px-10">
-          <div className="flex flex-col container-custom py-4 space-y-4">
+        <motion.div
+          className="md:hidden bg-white absolute top-full left-0 w-full border-t rounded-b-lg shadow-sm px-10 pb-5"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -5 }}
+          transition={{ duration: 0.2 }}
+        >
+          <motion.div
+            className="flex flex-col container-custom py-4 space-y-4"
+            initial={{ opacity: 0, y: -40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -40 }}
+            transition={{ duration: 0.4 }}
+          >
+            {user ? (
+              <div>
+                <Popover>
+                  <PopoverTrigger>
+                    <div className="flex items-center gap-2 cursor-pointer w-full">
+                      <img
+                        src={userPicture}
+                        alt="user"
+                        height={35}
+                        width={35}
+                        className="rounded-full cursor-pointer"
+                      />
+                      <div className="flex flex-col items-start">
+                        <p className="text-sm font-semibold">{userName}</p>
+                        <p className="text-sm text-gray-500">{userEmail}</p>
+                      </div>
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="z-99">
+                    <div className="flex flex-col gap-2 p-2">
+                      {/* <div className="flex items-center gap-2">
+                        <div>
+                          <p className="text-sm font-semibold">{userName}</p>
+                          <p className="text-sm text-gray-500">{userEmail}</p>
+                        </div>
+                      </div> */}
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleLogout}
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <div className="flex justify-center items-center">
+                            <AiOutlineLoading3Quarters className="h-5 w-5 animate-spin" />
+                          </div>
+                        ) : (
+                          "Logout"
+                        )}
+                      </Button>
+                      {/* <Button variant="outline" className="w-full">
+                        Switch Account
+                      </Button> */}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            ) : null}
             {location.pathname !== "/" ? (
               <Link
                 to={"/"}
@@ -242,21 +305,24 @@ const Header = () => {
               >
                 Home
               </Link>
-            ) : null}
-            <a
-              href="#features"
-              className="py-2 font-medium hover:text-orange transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Features
-            </a>
-            <a
-              href="#how-it-works"
-              className="py-2 font-medium hover:text-orange transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              How It Works
-            </a>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <a
+                  href="#features"
+                  className="py-2 font-medium hover:text-orange transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Features
+                </a>
+                <a
+                  href="#how-it-works"
+                  className="py-2 font-medium hover:text-orange transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  How It Works
+                </a>
+              </div>
+            )}
             {user ? (
               <div className="flex flex-col gap-5">
                 {location.pathname !== "/create-trip" ? (
@@ -288,7 +354,10 @@ const Header = () => {
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() => setOpenDialog(true)}
+                    onClick={() => {
+                      setOpenDialog(true);
+                      setIsMenuOpen(false);
+                    }}
                   >
                     Login
                   </Button>
@@ -302,8 +371,8 @@ const Header = () => {
                 )}
               </div>
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
     </nav>
   );

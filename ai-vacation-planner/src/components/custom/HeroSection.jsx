@@ -30,6 +30,7 @@ const HeroSection = () => {
       id="hero"
       className="mt-30 md:mt-20 md:pt-9 md:pb-20 overflow-hidden bg-gradient-to-b from-light to-white"
       initial="hidden"
+      animate="show"
       whileInView="show"
       viewport={{ once: true, amount: 0.4 }}
       variants={containerVariants}

@@ -7,7 +7,7 @@ import Features from "./HomePageComponents/Features";
 
 const HomePage = () => {
   return (
-    <div className="px-10 md:px-40">
+    <div className="px-5 md:px-40">
       <HeroSection />
       <Features />
       <HowItWorks />
