@@ -15,7 +15,7 @@ import LoginDialog from "./Dialog";
 import { Link } from "react-router-dom";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaPlus } from "react-icons/fa6";
-import { Menu, X, Globe } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, useAnimation } from "motion/react";
 import { useLocation } from "react-router-dom";
 import { FaMapMarkedAlt } from "react-icons/fa";
@@ -63,7 +63,7 @@ const Header = () => {
 
   return (
     <nav
-      className={`px-5 p-3 flex justify-between items-center md:px-20 fixed top-0 left-0 right-0 transition-all duration-300 z-99 ${
+      className={`px-5 p-3 flex justify-between items-center md:px-40 fixed top-0 left-0 right-0 transition-all duration-300 z-99 ${
         isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-4"
       }`}
     >
