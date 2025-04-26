@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import { useLoadGoogleMaps } from "@/services/GooglePlaceAutoComplete.jsx";
 import LoginDialog from "@/components/custom/Dialog";
 import { useAuth } from "@/context/GoogleAuth";
 import { motion } from "motion/react";
+import { Calendar } from "@/components/ui/calendar";
+import { getFlightData } from "@/services/FlightData";
 
 const container = {
   hidden: { opacity: 0, y: 30 },
@@ -31,54 +33,120 @@ const item = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
 };
 
+const calculateTripDays = (startDate, endDate) => {
+  if (!startDate || !endDate) return "";
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  start.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
+
+  const diff = end.getTime() - start.getTime();
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+  return days >= 0 ? days.toString() : "";
+};
+
 const CreateTrip = () => {
-  const [place, setPlace] = useState(null);
-  const [formData, setFormData] = useState(null);
+  const [place, setPlace] = useState(() => {
+    const savedPlace = localStorage.getItem("place");
+    return savedPlace ? JSON.parse(savedPlace) : null;
+  });
+
+  const [from, setFrom] = useState(() => {
+    const savedFrom = localStorage.getItem("from");
+    return savedFrom ? JSON.parse(savedFrom) : null;
+  });
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem("formData");
+    return saved ? JSON.parse(saved) : {};
+  });
   const [dataLoaded, setDataLoaded] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [date, setDate] = useState(() => {
+    try {
+      const saved = localStorage.getItem("date");
+      if (saved) {
+        const parsed = new Date(JSON.parse(saved));
+        return isNaN(parsed.getTime()) ? null : parsed;
+      }
+    } catch (error) {
+      console.error("Invalid date in localStorage", error);
+    }
+    return null;
+  });
+  const [returnDate, setReturnDate] = useState(() => {
+    try {
+      const saved = localStorage.getItem("returnDate");
+      if (saved) {
+        const parsed = new Date(JSON.parse(saved));
+        return isNaN(parsed.getTime()) ? null : parsed;
+      }
+    } catch (error) {
+      console.error("Invalid returnDate in localStorage", error);
+    }
+    return null;
+  });
   const navigate = useNavigate();
   const { scriptLoaded, scriptError } = useLoadGoogleMaps();
   const { user } = useAuth();
 
   useEffect(() => {
-    if (formData !== null) {
-      localStorage.setItem("formData", JSON.stringify(formData));
-    }
-  }, [formData]);
+    const days = calculateTripDays(date, returnDate);
+    setFormData((prev) => ({ ...prev, days }));
 
-  useEffect(() => {
-    if (place !== null) {
-      localStorage.setItem("place", JSON.stringify(place));
-    }
-  }, [place]);
+    localStorage.setItem("date", JSON.stringify(date));
+    localStorage.setItem("returnDate", JSON.stringify(returnDate));
 
-  useEffect(() => {
-    const savedFormData = localStorage.getItem("formData");
-    const savedPlace = localStorage.getItem("place");
-
-    if (savedFormData) {
-      setFormData(JSON.parse(savedFormData));
-    }
-
-    if (savedPlace) {
-      setPlace(JSON.parse(savedPlace));
-    }
-
-    setDataLoaded(true); // allow rendering
-  }, []);
-
-  const handleInputChange = (name, value) => {
-    if (name === "days" && value > 5) {
+    if (days && Number(days) > 5) {
       showToast(
         "white",
         "red",
         "Please select a maximum of 5 days for your trip."
       );
-      return;
     }
+  }, [date, returnDate]);
 
-    setFormData({ ...formData, [name]: value }); // Update formData with the new input value
+  useEffect(() => {
+    if (place) {
+      localStorage.setItem("place", JSON.stringify(place));
+    }
+    if (from) {
+      localStorage.setItem("from", JSON.stringify(from));
+    }
+  }, [place, from]);
+
+  useEffect(() => {
+    if (date) {
+      localStorage.setItem("date", JSON.stringify(date));
+    } else {
+      localStorage.removeItem("date");
+    }
+  }, [date]);
+
+  useEffect(() => {
+    if (returnDate) {
+      localStorage.setItem("returnDate", JSON.stringify(returnDate));
+    } else {
+      localStorage.removeItem("returnDate");
+    }
+  }, [returnDate]);
+
+  useEffect(() => {
+    localStorage.setItem("formData", JSON.stringify(formData));
+  }, [formData]);
+
+  useEffect(() => {
+    console.log("formData", formData);
+  }, [formData]);
+
+  const handleInputChange = (name, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   // Google recommends loading the Maps JavaScript API asynchronously for better performance. Below is the approach
@@ -115,8 +183,12 @@ const CreateTrip = () => {
       console.log("Trip saved successfully!");
       localStorage.removeItem("formData");
       localStorage.removeItem("place");
+      localStorage.removeItem("from");
+      localStorage.removeItem("date");
+      localStorage.removeItem("returnDate");
       setFormData({});
       setPlace(null);
+      setFrom(null);
     } catch (error) {
       console.error("Error saving trip:", error);
     }
@@ -382,6 +454,29 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
 
       <div className="mt-20 flex flex-col gap-9">
         <motion.div variants={item}>
+          <h2 className="text-xl my-3 font-medium">From Where ?</h2>
+          {scriptError ? (
+            <div className="text-red-500">
+              Failed to load Google Maps. Please refresh the page or check your
+              connection.
+            </div>
+          ) : !scriptLoaded ? (
+            <div className="text-gray-600">Loading Google Places...</div>
+          ) : (
+            <GooglePlacesAutocomplete
+              selectProps={{
+                value: from,
+                onChange: (v) => {
+                  setFrom(v);
+                  handleInputChange("from", v.label);
+                },
+                placeholder: "Search for a place",
+              }}
+            />
+          )}
+        </motion.div>
+
+        <motion.div variants={item}>
           <h2 className="text-xl my-3 font-medium">
             What is your destination of choice ?
           </h2>
@@ -408,18 +503,27 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
 
         <motion.div variants={item}>
           <h2 className="text-xl my-3 font-medium">
-            How many days are you planning your trip ?
+            {formData?.days
+              ? `total trip days: ${formData?.days}`
+              : "select start and end date from the calendar below"}
           </h2>
-          <Input
-            type="number"
-            placeholder="Example: 3"
-            className="w-full max-w p-5"
-            min="1"
-            max="5"
-            required
-            onChange={(e) => handleInputChange("days", e.target.value)}
-            value={formData?.days || ""}
-          />
+        </motion.div>
+
+        <motion.div>
+          <div className="flex flex-col md:flex-row gap-20 items-center">
+            <motion.div variants={item}>
+              <h2 className="text-xl my-3 font-medium">starting Date</h2>
+              <Calendar mode="single" selected={date} onSelect={setDate} />
+            </motion.div>
+            <motion.div variants={item}>
+              <h2 className="text-xl my-3 font-medium">Ending Date</h2>
+              <Calendar
+                mode="single"
+                selected={returnDate}
+                onSelect={setReturnDate}
+              />
+            </motion.div>
+          </div>
         </motion.div>
 
         <motion.div variants={item}>
@@ -446,7 +550,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
 
         <motion.div variants={item}>
           <h2 className="text-xl my-3 font-medium">
-            Who do you plan on traveling with on your next adventure?
+            Who do you plan on traveling with on your next adventure ?
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mt-5">
             {SelectTravelesList.map((item, index) => (

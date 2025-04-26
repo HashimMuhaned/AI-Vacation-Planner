@@ -34,9 +34,11 @@ const Header = () => {
   const location = useLocation();
   const techControls = useAnimation();
   const howItWorkControls = useAnimation();
-  const userPicture = user?.picture || "https://via.placeholder.com/150"; // Fallback image
-  const userName = user?.name;
-  const userEmail = user?.email;
+  const [userPicture, setUserPicture] = useState(
+    user?.picture || "https://via.placeholder.com/150"
+  ); // Fallback image
+  const [userName, setUserName] = useState(user?.name);
+  const [userEmail, setUserEmail] = useState(user?.email);
 
   const handleLogout = () => {
     setLoading(true);
@@ -60,6 +62,14 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      setUserPicture(user.picture);
+      setUserName(user.name);
+      setUserEmail(user.email);
+    }
+  }, [user]);
 
   return (
     <nav
