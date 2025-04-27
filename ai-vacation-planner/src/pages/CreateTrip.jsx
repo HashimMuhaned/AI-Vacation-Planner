@@ -1,6 +1,5 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SelectBudgetList, SelectTravelesList } from "../constants/options";
 import { showToast } from "@/components/ui/sonner";
@@ -14,7 +13,6 @@ import LoginDialog from "@/components/custom/Dialog";
 import { useAuth } from "@/context/GoogleAuth";
 import { motion } from "motion/react";
 import { Calendar } from "@/components/ui/calendar";
-import { getFlightData } from "@/services/FlightData";
 
 const container = {
   hidden: { opacity: 0, y: 30 },
@@ -62,7 +60,6 @@ const CreateTrip = () => {
     const saved = localStorage.getItem("formData");
     return saved ? JSON.parse(saved) : {};
   });
-  const [dataLoaded, setDataLoaded] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState(() => {
@@ -167,6 +164,7 @@ const CreateTrip = () => {
 
   const saveTrip = async (tripData) => {
     try {
+      console.log("Saving FormData:", formData);
       const docId = Date.now().toString(); // Generate a unique document ID
 
       // Ensure tripData is stored as an object
@@ -175,6 +173,12 @@ const CreateTrip = () => {
         userSelection: formData,
         tripData,
         userEmail: user?.email,
+        FlightDetailes: {
+          departurePlace: from,
+          destination: place,
+          departureDate: date,
+          return: returnDate,
+        },
       });
 
       showToast("white", "green", "Trip saved successfully!");
@@ -407,7 +411,11 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
             "budget": NUMBER,
             "days": "STRING",
             "place": "STRING",
-            "travelers": "STRING"
+            "travelers": "STRING",
+            "startingDate": ${formData?.date},
+            "returnDate": ${formData?.returnDate},
+            "origin": "${formData?.label}",
+            "destination": "${place?.label}"
           }
         }
   

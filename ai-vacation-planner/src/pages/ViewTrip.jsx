@@ -8,6 +8,7 @@ import InfoSection from "@/components/ViewTripComponents/InfoSection";
 import HotelsInfo from "@/components/ViewTripComponents/HotelsInfo";
 import PlacesToVisit from "@/components/ViewTripComponents/PlacesToVisit";
 import Footer from "@/components/ViewTripComponents/Footer";
+import { FlightDisplayCard } from "./components/FlightDisplayCard";
 
 const ViewTrip = () => {
   const { tripId } = useParams();
@@ -45,9 +46,11 @@ const ViewTrip = () => {
   const cleanedTripDateHotelsInfo =
     tripData?.tripData?.tripData?.travelPlan?.hotels;
   // const cleanedTripDatePlacesToVisit = tripData?.tripData?.tripData?.travelPlan;
+  const cleanedFlightData = tripData?.FlightDetailes;
 
   return (
     <div className="mt-25 p-5 md:px-20 lg:px-44 xl:px-56 md:mt-25">
+      <FlightDisplayCard flightData={cleanedFlightData} />
       <InfoSection tripData={tripData} loading={loading} />
       <HotelsInfo hotels={cleanedTripDateHotelsInfo} loading={loading} />
       <PlacesToVisit

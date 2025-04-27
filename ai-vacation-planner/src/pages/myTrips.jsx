@@ -14,7 +14,7 @@ const containerVariants = {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.6,
+      duration: 0.4,
       ease: "easeOut",
       when: "beforeChildren",
       staggerChildren: 0.15,
@@ -24,7 +24,7 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
 };
 
 const myTrips = () => {
