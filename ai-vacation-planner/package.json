@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@api/locationiq": "file:.api/apis/locationiq",
     "@google/genai": "^0.7.0",
     "@google/generative-ai": "^0.24.0",
     "@radix-ui/react-alert-dialog": "^1.1.7",

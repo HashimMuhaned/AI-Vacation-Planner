@@ -85,3 +85,19 @@ export const getCountryImagesUnSplash = async (placeId) => {
     return [];
   }
 };
+
+export const getPlaceImageWikiMedia = async (textQuery) => {
+  const commonsApiUrl = `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=1&gsrsearch=${encodeURIComponent(
+    textQuery
+  )}&prop=imageinfo&iiprop=url`;
+
+  try {
+    const response = await axios.get(commonsApiUrl);
+    const pages = response.data?.query?.pages;
+    const firstPage = pages ? Object.values(pages)[0] : null;
+    return firstPage?.imageinfo?.[0]?.url || null;
+  } catch (error) {
+    console.error("Error fetching image from Wikimedia Commons:", error);
+    return null;
+  }
+};

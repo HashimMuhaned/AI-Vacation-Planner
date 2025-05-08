@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import HeroSection from "@/components/custom/HeroSection";
 import CallToAction from "./HomePageComponents/CallToAction";
 import Footer from "./HomePageComponents/Footer";

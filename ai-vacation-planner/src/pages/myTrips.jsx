@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { getLocalStorageItem } from "@/utils/localStorage";
 import { Link, useNavigate } from "react-router-dom";
 import { db } from "../services/FirebaseConfig";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { useAuth } from "@/context/GoogleAuth";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import NoTrip from "./NoTrips";
 import UserTripCardItem from "./components/UserTripCardItem";
+import LoginDialog from "@/components/custom/Dialog";
 import { motion } from "framer-motion";
 
 const containerVariants = {
@@ -32,18 +33,33 @@ const myTrips = () => {
   const [userTrips, setUserTrips] = useState([]);
   const [loading, setLoading] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
-  const { user } = useAuth();
+  const [openDialog, setOpenDialog] = useState(false);
+  const { user, authLoading } = useAuth();
   useEffect(() => {
     const getUserTrips = async () => {
       try {
-        if (!user) {
-          navigate("/");
-          return;
+        if (authLoading) {
+          return (
+            <div className="flex flex-col items-center justify-center h-screen">
+              <AiOutlineLoading3Quarters className="animate-spin text-4xl" />
+            </div>
+          );
+        }
+
+        if (!authLoading && !user) {
+          return (
+            <>
+              <LoginDialog
+                openDialog={true}
+                setOpenDialog={() => navigate("/")}
+              />
+            </>
+          );
         }
         setLoading(true);
         const getDataQuery = query(
           collection(db, "Trips"),
-          where("userEmail", "==", user?.email)
+          where("userEmail", "==", user.email)
         );
 
         const querySnapshot = await getDocs(getDataQuery);
@@ -65,12 +81,11 @@ const myTrips = () => {
       } catch (error) {
         console.error("Error fetching user trips:", error);
         setLoading(false);
-        navigate("/");
       }
     };
 
     getUserTrips();
-  }, [navigate]); // include navigate in deps
+  }, [authLoading, user, navigate]); // include navigate in deps
 
   useEffect(() => {
     if (userTrips.length === 0) {
@@ -104,9 +119,31 @@ const myTrips = () => {
 
   const isReady = !loading && imagesLoaded;
 
+  if (authLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <AiOutlineLoading3Quarters className="animate-spin text-4xl" />
+      </div>
+    );
+  }
+
+  // if user is still null after auth resolves, redirect manually
+  if (!user) {
+    navigate("/");
+    return null;
+  }
+
   return (
     <div className="sm:px-10 md:px-20 lg:px-56 xl:px-72 px-5 my-25">
-      {!isReady ? (
+      {authLoading ? (
+        <div className="flex flex-col items-center justify-center h-screen">
+          <AiOutlineLoading3Quarters className="animate-spin text-4xl" />
+        </div>
+      ) : !user ? (
+        <>
+          <LoginDialog openDialog={openDialog} setOpenDialog={setOpenDialog} />
+        </>
+      ) : !isReady ? (
         <div className="flex flex-col items-center justify-center h-screen">
           <AiOutlineLoading3Quarters className="animate-spin text-4xl" />
         </div>
@@ -120,9 +157,9 @@ const myTrips = () => {
             {userTrips.length > 0 ? (
               "Your Trips"
             ) : (
-              <Link to={"/create-trip"} className="underline">
-                No Trips Yet, Make One?
-              </Link>
+              <div>
+                <NoTrip />
+              </div>
             )}
           </motion.h2>
 

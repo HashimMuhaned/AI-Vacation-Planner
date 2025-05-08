@@ -5,13 +5,16 @@ import ReactDOM from "react-dom/client";
 import { Toaster } from "./components/ui/sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./context/GoogleAuth";
+import { LoadingProvider } from "./context/ViewTripLoadingContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_AUTH_CLENT_ID}>
       <Toaster />
       <AuthProvider>
-        <App />
+        <LoadingProvider>
+          <App />
+        </LoadingProvider>
       </AuthProvider>
     </GoogleOAuthProvider>
   </StrictMode>

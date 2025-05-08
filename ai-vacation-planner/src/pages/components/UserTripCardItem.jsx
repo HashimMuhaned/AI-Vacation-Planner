@@ -1,33 +1,23 @@
 import React, { useState, useEffect } from "react";
 import placeholderimg from "../../assets/placeholder.jpg"; // Placeholder image
-import { getPlaceImage } from "@/services/GglPlaceImgApi";
+import { getCountryImagesUnSplash } from "@/services/GglPlaceImgApi";
 import { Link } from "react-router-dom";
 
 const UserTripCardItem = ({ trip }) => {
   const [placePhoto, setPlacePhoto] = useState(null);
   useEffect(() => {
-    const getPlacePhoto = async () => {
+    const getPlacePhotos = async () => {
       try {
         const placeName = trip?.userSelection?.place;
-        const response = await getPlaceImage(placeName);
-
-        const photoName = response.data.places[0].photos[6].name;
-        console.log(photoName);
-
-        const PhotoURL = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=400&key=${
-          import.meta.env.VITE_MAPS_API_KEY
-        }`;
-
-        setPlacePhoto(PhotoURL);
-
-        console.log(PhotoURL);
+        const photos = await getCountryImagesUnSplash(placeName);
+        setPlacePhoto(photos); // Now an array!
       } catch (error) {
-        console.error("Error fetching place photo:", error);
+        console.error("Error fetching country photos:", error);
       }
     };
 
     if (trip?.userSelection?.place) {
-      getPlacePhoto();
+      getPlacePhotos();
     }
   }, [trip]);
   return (

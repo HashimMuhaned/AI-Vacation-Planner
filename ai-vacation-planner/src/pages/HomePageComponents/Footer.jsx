@@ -1,5 +1,4 @@
 import {
-  Globe,
   Mail,
   MessageCircle,
   Facebook,
@@ -7,7 +6,7 @@ import {
   Instagram,
   Linkedin,
 } from "lucide-react";
-
+import Logo from "/logo.svg";
 import React from "react";
 
 const Footer = () => {
@@ -18,7 +17,7 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <div className="flex items-center mb-4">
-              <Globe className="h-8 w-8 text-orange-500 mr-2" />
+              <img src={Logo} alt="Logo" className="h-10 mr-2" />
               <span className="font-bold text-xl">AI Vacation Planner</span>
             </div>
             <p className="hsl(var(20 5% 60%)) mb-4">

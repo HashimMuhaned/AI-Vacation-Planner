@@ -1,29 +1,25 @@
 import React, { useState, useEffect } from "react";
-import placeholderimg from "../../assets/placeholder.jpg"; // Placeholder image
+import placeholderimg from "../../assets/placeholder.jpg";
 import { Link } from "react-router-dom";
-import { getPlaceImage } from "@/services/GglPlaceImgApi";
+import { getPlaceImageWikiMedia } from "@/services/GglPlaceImgApi";
+import { useLoading } from "@/context/ViewTripLoadingContext"; // ✅ Import loading context
 
 const PlaceCardItem = ({ place }) => {
   const [placePhoto, setPlacePhoto] = useState(null);
-  console.log(place);
+  const { showLoading, hideLoading } = useLoading(); // ✅ Use context
+
   useEffect(() => {
     const getPlacePhoto = async () => {
+      showLoading(); // ✅ Trigger global loading
       try {
         const placeName = place.placeName;
-        const response = await getPlaceImage(placeName);
-
-        const photoName = response.data.places[0].photos[4].name;
-        console.log(photoName);
-
-        const PhotoURL = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=400&key=${
-          import.meta.env.VITE_MAPS_API_KEY
-        }`;
-
-        setPlacePhoto(PhotoURL);
-
-        console.log(PhotoURL);
+        const photoURL = await getPlaceImageWikiMedia(placeName);
+        setPlacePhoto(photoURL);
+        console.log("Wikimedia photo URL:", photoURL);
       } catch (error) {
-        console.error("Error fetching place phsoto:", error);
+        console.error("Error fetching Wikimedia place photo:", error);
+      } finally {
+        hideLoading(); // ✅ Hide loading when done
       }
     };
 
@@ -31,6 +27,7 @@ const PlaceCardItem = ({ place }) => {
       getPlacePhoto();
     }
   }, [place]);
+
   return (
     <Link
       to={`https://www.google.com/maps/search/?api=1&query=${place?.placeName}`}
@@ -42,7 +39,6 @@ const PlaceCardItem = ({ place }) => {
           alt={place.placeName}
           className="w-[130px] h-[170px] object-cover rounded-xl"
         />
-
         <div>
           <h2 className="font-bold text-lg">{place.placeName}</h2>
           <p className="text-sm text-gray-400">{place.placeDetails}</p>

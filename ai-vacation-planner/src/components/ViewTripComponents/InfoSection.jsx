@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
-import placeholderimg from "../../assets/placeholder.jpg"; // Placeholder image
+import placeholderimg from "../../assets/placeholder.jpg";
 import { Button } from "../ui/button";
-import { FaShare } from "react-icons/fa6";
-import {
-  getCountryImage,
-  getCountryImagesUnSplash,
-} from "@/services/GglPlaceImgApi";
-// import { Card, CardContent } from "@/components/ui/card";
+import { FaShare, FaRegTrashCan } from "react-icons/fa6";
+import { getCountryImagesUnSplash } from "@/services/GglPlaceImgApi";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { FaRegTrashCan } from "react-icons/fa6";
 import { useAuth } from "@/context/GoogleAuth";
 import LoginDialog from "@/components/custom/Dialog";
 import { doc, deleteDoc } from "firebase/firestore";
@@ -33,6 +28,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useLoading } from "@/context/ViewTripLoadingContext"; // Import your context
 
 const InfoSection = ({ tripData }) => {
   const [placePhoto, setPlacePhoto] = useState([]);
@@ -40,25 +36,33 @@ const InfoSection = ({ tripData }) => {
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const [openDialog, setOpenDialog] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+
+  const { showLoading, hideLoading } = useLoading(); // Access context
   const { tripId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  console.log("tripData: ", tripData);
-
   useEffect(() => {
     const getPlacePhotos = async () => {
+      showLoading(); // Start global loading
       try {
         const placeName = tripData?.userSelection?.place;
         const photos = await getCountryImagesUnSplash(placeName);
-        setPlacePhoto(photos); // Now an array!
+        setPlacePhoto(photos);
       } catch (error) {
         console.error("Error fetching country photos:", error);
+      } finally {
+        setIsReady(true);
+        hideLoading(); // Done loading this component
       }
     };
 
     if (tripData?.userSelection?.place) {
       getPlacePhotos();
+    } else {
+      setIsReady(true);
+      hideLoading(); // No data = still mark as done
     }
   }, [tripData]);
 
@@ -70,27 +74,30 @@ const InfoSection = ({ tripData }) => {
         setCurrent(api.selectedScrollSnap() + 1);
       };
 
-      updateSnapData(); // run initially
-      api.on("select", updateSnapData); // update on slide change
-      api.on("reInit", updateSnapData); // update on carousel re-render
+      updateSnapData();
+      api.on("select", updateSnapData);
+      api.on("reInit", updateSnapData);
     }
-  }, [api, placePhoto]); // watch placePhoto too
+  }, [api, placePhoto]);
 
   const deleteTrip = async () => {
     if (!user) {
-      setOpenDialog(true); // trigger login if not authenticated
+      setOpenDialog(true);
       return;
     }
 
     try {
       await deleteDoc(doc(db, "Trips", tripId));
       showToast("white", "green", "Trip deleted successfully!");
-      navigate("/"); // go to home or wherever you want after delete
+      navigate("/");
     } catch (error) {
       console.error("Error deleting trip:", error);
       showToast("white", "red", "Failed to delete trip.");
     }
   };
+
+  // ✅ Until ready, show nothing or local loader if needed
+  if (!isReady) return null;
 
   return (
     <div className="mx-auto">
@@ -152,8 +159,8 @@ const InfoSection = ({ tripData }) => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your trip and remove your data from our servers.
+                    This will permanently delete your trip and remove your data
+                    from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -161,12 +168,7 @@ const InfoSection = ({ tripData }) => {
                   <AlertDialogAction
                     onClick={(e) => {
                       e.preventDefault();
-                      if (!user) {
-                        setOpenDialog(true); // trigger Google login
-                      } else {
-                        // proceed with trip deletion
-                        deleteTrip(); // make sure you define this function
-                      }
+                      user ? deleteTrip() : setOpenDialog(true);
                     }}
                     className="bg-red-500 hover:bg-red-400 text-white"
                   >

@@ -34,11 +34,12 @@ const Header = () => {
   const location = useLocation();
   const techControls = useAnimation();
   const howItWorkControls = useAnimation();
-  const [userPicture, setUserPicture] = useState(
-    user?.picture || "https://via.placeholder.com/150"
-  ); // Fallback image
+  // const [userPicture, setUserPicture] = useState(
+  //   user?.picture || "https://via.placeholder.com/150"
+  // ); // Fallback image
   const [userName, setUserName] = useState(user?.name);
   const [userEmail, setUserEmail] = useState(user?.email);
+  const userPicture = user?.picture || "https://via.placeholder.com/150"; // Fallback image
 
   const handleLogout = () => {
     setLoading(true);
@@ -65,7 +66,7 @@ const Header = () => {
 
   useEffect(() => {
     if (user) {
-      setUserPicture(user.picture);
+      // setUserPicture(user.picture);
       setUserName(user.name);
       setUserEmail(user.email);
     }
@@ -137,7 +138,7 @@ const Header = () => {
               <motion.div
                 onHoverStart={() => plusControls.start({ y: 0 })}
                 onHoverEnd={() => plusControls.start({ y: 40 })}
-                className="hidden md:flex items-center gap-2 relative overflow-hidden font-medium hover:text-orange-500 transition-colors cursor-pointer"
+                className="hidden md:flex items-center gap-3 relative overflow-hidden font-medium hover:text-orange-500 transition-colors cursor-pointer"
               >
                 <Link to="/create-trip" className="flex items-center gap-2">
                   <motion.div
@@ -145,7 +146,7 @@ const Header = () => {
                     animate={plusControls}
                     transition={{ duration: 0.3, ease: "easeOut" }}
                   >
-                    <FaPlus />
+                    <FaPlus className="ml-2"/>
                   </motion.div>
                   <span>Create Trip</span>
                 </Link>

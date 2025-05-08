@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useContext } from "react";
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+import React, { useState, useEffect } from "react";
+// import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { Button } from "@/components/ui/button";
 import { SelectBudgetList, SelectTravelesList } from "../constants/options";
 import { showToast } from "@/components/ui/sonner";
-import { chatSession } from "@/services/AIModel.jsx";
+import { createChatSession } from "@/services/AIModel.jsx";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/services/FirebaseConfig";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
@@ -12,6 +12,10 @@ import { useLoadGoogleMaps } from "@/services/GooglePlaceAutoComplete.jsx";
 import LoginDialog from "@/components/custom/Dialog";
 import { useAuth } from "@/context/GoogleAuth";
 import { motion } from "motion/react";
+import LocationIQAutocomplete from "@/services/LocationIQAutoComplete";
+import GeoapifyAutocomplete from "@/services/GeoApifyAutoComplete";
+import OpenCageAutocomplete from "@/services/OpenCageAutoComplete";
+import GeoNamesAutocomplete from "@/services/GeoNamesAutoComplete";
 import { Calendar } from "@/components/ui/calendar";
 
 const container = {
@@ -62,6 +66,7 @@ const CreateTrip = () => {
   });
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingFlight, setLoadingFlight] = useState(false);
   const [date, setDate] = useState(() => {
     try {
       const saved = localStorage.getItem("date");
@@ -162,17 +167,13 @@ const CreateTrip = () => {
     );
   }
 
-  const saveTrip = async (tripData) => {
+  const saveTrip = async (tripData, docId) => {
     try {
-      console.log("Saving FormData:", formData);
-      const docId = Date.now().toString(); // Generate a unique document ID
-
-      // Ensure tripData is stored as an object
       await setDoc(doc(db, "Trips", docId), {
-        docId: docId,
+        docId,
         userSelection: formData,
         tripData,
-        userEmail: user?.email,
+        userEmail: user.email,
         FlightDetailes: {
           departurePlace: from,
           destination: place,
@@ -181,10 +182,12 @@ const CreateTrip = () => {
         },
       });
 
+      console.log("✅ Trip saved:", docId);
       showToast("white", "green", "Trip saved successfully!");
       navigate(`/view-trip/${docId}`);
 
-      console.log("Trip saved successfully!");
+      // Cleanup
+      localStorage.setItem("tripDocId", docId);
       localStorage.removeItem("formData");
       localStorage.removeItem("place");
       localStorage.removeItem("from");
@@ -194,7 +197,7 @@ const CreateTrip = () => {
       setPlace(null);
       setFrom(null);
     } catch (error) {
-      console.error("Error saving trip:", error);
+      console.error("❌ Error saving trip:", error);
     }
   };
 
@@ -285,7 +288,24 @@ const CreateTrip = () => {
     }
   }
 
-  const generateTrip = async () => {
+  const saveEverything = async (tripData, flightData) => {
+    setLoading(true);
+    const tripDocId = Date.now().toString(); // One consistent ID
+
+    try {
+      await saveTrip(tripData, tripDocId); // Use same ID
+      await saveFlightDetails(flightData, tripDocId); // Use same ID
+      showToast("white", "green", "Trip and flight saved successfully!");
+      setLoading(false);
+    } catch (error) {
+      console.error("Error saving:", error);
+      showToast("white", "red", "Something went wrong saving your data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateTrip = async (docId) => {
     setLoading(true);
 
     const userString = localStorage.getItem("user");
@@ -406,7 +426,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
               "travelers": "STRING"
             }
           },
-          "userEmail": "${user?.email}",
+          "userEmail": ${user.email},
           "userSelection": {
             "budget": NUMBER,
             "days": "STRING",
@@ -422,6 +442,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
     `;
 
     try {
+      const chatSession = await createChatSession("gemini-2.0-flash");
       const result = await chatSession.sendMessage(AI_PROMPT);
       const rawTripData = result?.response?.text();
 
@@ -432,15 +453,104 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
 
       console.log("✅ Raw Trip Data:", cleaned);
 
-      const parsedTripData = safeParseJson(cleaned); // ✅ Use safeParseJson here
+      const parsedTripData = await safeParseJson(cleaned); // ✅ Use safeParseJson here
       console.log("✅ Cleaned & Parsed Trip Data:", parsedTripData);
-
-      await saveTrip(parsedTripData);
+      await saveTrip(parsedTripData, docId); // Save trip data to Firestore
     } catch (error) {
       console.error("❌ Failed to generate or parse trip data:", error);
       showToast("white", "red", "Something went wrong generating the trip.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveFlightDetails = async (flightDetailsData, tripDocId) => {
+    try {
+      if (!tripDocId) {
+        console.error("Trip ID not found in localStorage");
+        throw new Error("Trip must be generated before saving flight details.");
+      }
+
+      await setDoc(doc(db, "FlightDetails", tripDocId), {
+        tripId: tripDocId,
+        userEmail: "hashimcode123@gmail.com",
+        flightDetails: flightDetailsData,
+        createdAt: new Date().toISOString(),
+      });
+
+      console.log("✅ Flight details saved successfully!");
+    } catch (error) {
+      console.error("❌ Error saving flight details:", error);
+      throw error;
+    }
+  };
+
+  const generateFLightDetails = async (docId) => {
+    setLoadingFlight(true);
+
+    const userString = localStorage.getItem("user");
+    if (!userString) {
+      showToast("white", "red", "Please login to continue.");
+      setLoading(false);
+      return;
+    }
+
+    const AI_PROMPT = `
+        You are an expert Flight Deals.
+  
+        You are given the following user preferences:
+        - Origin: ${from}
+        - Destination: ${place}
+        - Departure Date: ${date}
+        - Return Date: ${returnDate}
+        
+        I am traveling from ${from} to ${place} on the Date ${date}, and I am coming back at ${returnDate}. I want you to give me 4 different Flight options with the timing, airport name, ticket price, and the link to book from.
+        
+        
+        **Expected Output Format (strictly follow this):**
+        
+        {
+        "flights": [
+          {
+            "departure_date": $${date},
+            "return_date": ${returnDate},
+            "origin": ${from},
+            "destination": ${place},
+            "options": [
+              {
+                "airline_name": "string",
+                "departure_airport": "string",
+                "arrival_airport": "string",
+                "departure_time": "string",
+                "arrival_time": "string",
+                "return_departure_time": "string",
+                "return_arrival_time": "string",
+                "estimated_ticket_price": "string",
+                "stops": "string",
+                "booking_link": "string",
+                "notes": "string"
+              }
+            ]
+          }
+        ],
+      }
+      `;
+
+    try {
+      const chatSession = await createChatSession("gemini-1.5-pro");
+      const result = await chatSession.sendMessage(AI_PROMPT);
+      const rawTripData = result?.response?.text();
+
+      const cleaned = cleanJsonString(rawTripData);
+      const parsedFlightData = safeParseJson(cleaned);
+
+      await saveFlightDetails(parsedFlightData, docId); // ✅ use same docId
+      // setHasGenerated(true);
+    } catch (error) {
+      console.error("❌ Failed to generate or parse trip data:", error);
+      showToast("white", "red", "Something went wrong generating the trip.");
+    } finally {
+      setLoadingFlight(false);
     }
   };
 
@@ -461,7 +571,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
       </motion.p>
 
       <div className="mt-20 flex flex-col gap-9">
-        <motion.div variants={item}>
+        {/* <motion.div variants={item}>
           <h2 className="text-xl my-3 font-medium">From Where ?</h2>
           {scriptError ? (
             <div className="text-red-500">
@@ -482,31 +592,66 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
               }}
             />
           )}
+        </motion.div> */}
+        {/* <motion.div variants={item}>
+          <h2 className="text-xl my-3 font-medium">
+            From Where ? (LocationIQ)
+          </h2>
+          <LocationIQAutocomplete
+            value={from}
+            onChange={(v) => {
+              setFrom(v);
+              handleInputChange("from", v.label);
+            }}
+            placeholder="Search for a place"
+          />
+        </motion.div> */}
+        <motion.div variants={item}>
+          <h2 className="text-xl my-3 font-medium">From Where ? (GeoNames)</h2>
+          <GeoNamesAutocomplete
+            value={from}
+            onChange={(v) => {
+              setFrom(v);
+              handleInputChange("from", v.label);
+            }}
+            placeholder="Search for a place"
+          />
         </motion.div>
+        {/* <motion.div variants={item}>
+          <h2 className="text-xl my-3 font-medium">From Where ? (GeoApify)</h2>
+          <GeoapifyAutocomplete
+            value={from}
+            onChange={(v) => {
+              setFrom(v);
+              handleInputChange("from", v.label);
+            }}
+            placeholder="Search for a place"
+          />
+        </motion.div> */}
+        {/* <motion.div variants={item}>
+          <h2 className="text-xl my-3 font-medium">From Where ? (OpenCage)</h2>
+          <OpenCageAutocomplete
+            value={from}
+            onChange={(v) => {
+              setFrom(v);
+              handleInputChange("from", v.label);
+            }}
+            placeholder="Search for a place"
+          />
+        </motion.div> */}
 
         <motion.div variants={item}>
           <h2 className="text-xl my-3 font-medium">
             What is your destination of choice ?
           </h2>
-          {scriptError ? (
-            <div className="text-red-500">
-              Failed to load Google Maps. Please refresh the page or check your
-              connection.
-            </div>
-          ) : !scriptLoaded ? (
-            <div className="text-gray-600">Loading Google Places...</div>
-          ) : (
-            <GooglePlacesAutocomplete
-              selectProps={{
-                value: place,
-                onChange: (v) => {
-                  setPlace(v);
-                  handleInputChange("place", v.label);
-                },
-                placeholder: "Search for a place",
-              }}
-            />
-          )}
+          <GeoNamesAutocomplete
+            value={place}
+            onChange={(v) => {
+              setPlace(v);
+              handleInputChange("place", v.label);
+            }}
+            placeholder="Search for a place"
+          />
         </motion.div>
 
         <motion.div variants={item}>
@@ -582,7 +727,15 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
       </div>
 
       <motion.div variants={item} className="my-10 flex justify-end">
-        <Button onClick={generateTrip}>
+        <Button
+          onClick={async () => {
+            const newTripDocId = Date.now().toString(); // always generate a fresh ID
+            // localStorage.setItem("tripDocId", newTripDocId);
+            await generateTrip(newTripDocId);
+            await generateFLightDetails(newTripDocId);
+          }}
+          disabled={loading}
+        >
           {loading ? (
             <div className="flex justify-center items-center">
               <AiOutlineLoading3Quarters className="h-5 w-5 animate-spin" />

@@ -1,28 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getPlaceImage } from "@/services/GglPlaceImgApi";
-import placeholderimg from "../../assets/placeholder.jpg"; // Placeholder image
+import { getPlaceImageWikiMedia } from "@/services/GglPlaceImgApi";
+import { useLoading } from "@/context/ViewTripLoadingContext"; // ✅ import context
+import placeholderimg from "../../assets/placeholder.jpg";
 
 const HotelCardItem = ({ hotel }) => {
   const [placePhoto, setPlacePhoto] = useState(null);
+  const { showLoading, hideLoading } = useLoading(); // ✅ use loading context
+
   useEffect(() => {
     const getPlacePhoto = async () => {
+      showLoading(); // ✅ show global loading
       try {
         const hotelName = hotel.hotelName || hotel.hotelAddress;
-        const response = await getPlaceImage(hotelName);
-
-        const photoName = response.data.places[0].photos[9].name;
-        console.log(photoName);
-
-        const PhotoURL = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=400&key=${
-          import.meta.env.VITE_MAPS_API_KEY
-        }`;
-
-        setPlacePhoto(PhotoURL);
-
-        console.log(PhotoURL);
+        const photoUrl = await getPlaceImageWikiMedia(hotelName);
+        setPlacePhoto(photoUrl);
       } catch (error) {
-        console.error("Error fetching place photo:", error);
+        console.error("Error fetching Wikimedia photo:", error);
+      } finally {
+        hideLoading(); // ✅ hide global loading
       }
     };
 
@@ -30,6 +26,7 @@ const HotelCardItem = ({ hotel }) => {
       getPlacePhoto();
     }
   }, [hotel]);
+
   return (
     <Link
       to={`https://www.google.com/maps/search/?api=1&query=${
@@ -47,9 +44,7 @@ const HotelCardItem = ({ hotel }) => {
         <div className="my-3">
           <h2 className="font-medium">{hotel.hotelName}</h2>
           <h2 className="text-xs text-gray-500">📍 {hotel.address}</h2>
-          <h2 h2 className="text-sm">
-            💲{hotel.price}
-          </h2>
+          <h2 className="text-sm">💲{hotel.price}</h2>
           <h2 className="text-sm text-gray-500">⭐{hotel.rating}</h2>
         </div>
       </div>
