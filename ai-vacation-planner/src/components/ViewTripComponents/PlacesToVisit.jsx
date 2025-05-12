@@ -19,16 +19,20 @@ const PlacesToVisit = ({ travelPlan }) => {
           </h2>
           <div className="flex-column md:flex gap-2 md:items-center">
             <h2 className="font-bold text-lg">Filter Restaurants</h2>
+            {/*  filter system for restaurants using a toggle group. 
+            This allows users to select multiple filter options ("all," "veg," "halal," "dessert") to refine the displayed results */}
             <ToggleGroup
-              type="multiple"
-              value={filterRestaurant}
+              type="multiple" // multiple options can be selected simultaneously.
+              value={filterRestaurant} // The current state of selected filters, stored in the filterRestaurant variable.
               onValueChange={(value) => {
+                // A callback function triggered whenever the selection changes. It updates the filterRestaurant state based on the user's input.
                 if (value.length === 0) {
+                  // If the user deselects all options (i.e., value.length === 0), the filter resets to ["all"]
                   setFilterRestaurant(["all"]);
                 } else {
                   setFilterRestaurant(
-                    value.includes("all") && value.length > 1
-                      ? value.filter((v) => v !== "all")
+                    value.includes("all") && value.length > 1 //If the user selects "all" along with other options,
+                      ? value.filter((v) => v !== "all") // the function removes "all" from the selection
                       : value
                   );
                 }
@@ -37,10 +41,11 @@ const PlacesToVisit = ({ travelPlan }) => {
             >
               {["all", "veg", "halal", "dessert"].map((option) => (
                 <ToggleGroupItem
-                  key={option}
-                  value={option}
+                  key={option} // A unique key for React to identify each item in the list.
+                  value={option} // The value of the toggle item, which corresponds to the filter option.
                   className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors
          ${
+           // If the option is selected (filterRestaurant.includes(option) will have gray background and black text)
            filterRestaurant.includes(option)
              ? "bg-gray-200 border-black text-black"
              : "bg-white border-gray-300 text-black"

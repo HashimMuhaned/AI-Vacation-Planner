@@ -6,6 +6,8 @@ const LoadingContext = createContext();
 export const LoadingProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
 
+  // this is global loading state
+  // showLoading and hideLoading are functions that can be used to control the loading state. Globaly 
   const showLoading = () => setIsLoading(true);
   const hideLoading = () => setIsLoading(false);
 

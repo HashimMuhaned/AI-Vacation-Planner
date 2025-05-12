@@ -12,9 +12,9 @@ import { useLoadGoogleMaps } from "@/services/GooglePlaceAutoComplete.jsx";
 import LoginDialog from "@/components/custom/Dialog";
 import { useAuth } from "@/context/GoogleAuth";
 import { motion } from "motion/react";
-import LocationIQAutocomplete from "@/services/LocationIQAutoComplete";
-import GeoapifyAutocomplete from "@/services/GeoApifyAutoComplete";
-import OpenCageAutocomplete from "@/services/OpenCageAutoComplete";
+// import LocationIQAutocomplete from "@/services/LocationIQAutoComplete";
+// import GeoapifyAutocomplete from "@/services/GeoApifyAutoComplete";
+// import OpenCageAutocomplete from "@/services/OpenCageAutoComplete";
 import GeoNamesAutocomplete from "@/services/GeoNamesAutoComplete";
 import { Calendar } from "@/components/ui/calendar";
 
@@ -35,18 +35,29 @@ const item = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
 };
 
+// calculate the number of days between two dates, typically used to determine the duration of a trip.
 const calculateTripDays = (startDate, endDate) => {
   if (!startDate || !endDate) return "";
 
+  // they are converted into JavaScript Date object
   const start = new Date(startDate);
   const end = new Date(endDate);
 
+  // This resets the time portion of the dates to midnight (00:00:00)
   start.setHours(0, 0, 0, 0);
   end.setHours(0, 0, 0, 0);
 
+  // The difference in time between the two dates is calculated in milliseconds
+  // method returns the number of milliseconds for each date.
+  // Subtracting the start date's time from the end date's time gives the total difference in milliseconds.
   const diff = end.getTime() - start.getTime();
+
+  // The conversion factor (1000 * 60 * 60 * 24) represents the number of milliseconds in a day.
+  //  function is used to round up to the nearest whole number, ensuring that partial days are counted as full days.
   const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
 
+  // If the number of days is zero or greater, it converts the result to a string and returns it.
+  // If the result is negative (indicating that the end date is earlier than the start date), it returns an empty string ("").
   return days >= 0 ? days.toString() : "";
 };
 
@@ -71,7 +82,9 @@ const CreateTrip = () => {
     try {
       const saved = localStorage.getItem("date");
       if (saved) {
-        const parsed = new Date(JSON.parse(saved));
+        const parsed = new Date(JSON.parse(saved)); // Sun Oct 01 2023 00:00:00 GMT+0000
+
+        // if it not a number, it means the date is invalid
         return isNaN(parsed.getTime()) ? null : parsed;
       }
     } catch (error) {
@@ -84,6 +97,8 @@ const CreateTrip = () => {
       const saved = localStorage.getItem("returnDate");
       if (saved) {
         const parsed = new Date(JSON.parse(saved));
+
+        // if it not a number, it means the date is invalid
         return isNaN(parsed.getTime()) ? null : parsed;
       }
     } catch (error) {
@@ -96,7 +111,10 @@ const CreateTrip = () => {
   const { user } = useAuth();
 
   useEffect(() => {
+    // This function calculates the number of days between the two dates and returns the result.
     const days = calculateTripDays(date, returnDate);
+    // { ...prev } copies all key-value pairs from prev into a new object.
+    //  Then days is added or updated:
     setFormData((prev) => ({ ...prev, days }));
 
     localStorage.setItem("date", JSON.stringify(date));
@@ -169,6 +187,8 @@ const CreateTrip = () => {
 
   const saveTrip = async (tripData, docId) => {
     try {
+      // The setDoc function is used to write data to a specific document in a Firestore collection.
+      // The doc function is used to create a reference to the specific document in the Trips collection
       await setDoc(doc(db, "Trips", docId), {
         docId,
         userSelection: formData,
@@ -287,23 +307,6 @@ const CreateTrip = () => {
       throw err;
     }
   }
-
-  const saveEverything = async (tripData, flightData) => {
-    setLoading(true);
-    const tripDocId = Date.now().toString(); // One consistent ID
-
-    try {
-      await saveTrip(tripData, tripDocId); // Use same ID
-      await saveFlightDetails(flightData, tripDocId); // Use same ID
-      showToast("white", "green", "Trip and flight saved successfully!");
-      setLoading(false);
-    } catch (error) {
-      console.error("Error saving:", error);
-      showToast("white", "red", "Something went wrong saving your data.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const generateTrip = async (docId) => {
     setLoading(true);
@@ -446,15 +449,20 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
       const result = await chatSession.sendMessage(AI_PROMPT);
       const rawTripData = result?.response?.text();
 
+      // Debugging: Check for weird characters and JSON parsing issues
       logWeirdChars(rawTripData); // Optional debug
+      // Debugging: Check for JSON parsing issues
       testJsonParsing(rawTripData); // Optional debug
 
+      // Clean the JSON string to remove any unwanted characters and format it correctly
       const cleaned = cleanJsonString(rawTripData);
 
       console.log("✅ Raw Trip Data:", cleaned);
 
-      const parsedTripData = await safeParseJson(cleaned); // ✅ Use safeParseJson here
+      // Parse the cleaned JSON string into a JavaScript object
+      const parsedTripData = await safeParseJson(cleaned);
       console.log("✅ Cleaned & Parsed Trip Data:", parsedTripData);
+      // Save the trip data to Firestore
       await saveTrip(parsedTripData, docId); // Save trip data to Firestore
     } catch (error) {
       console.error("❌ Failed to generate or parse trip data:", error);
@@ -466,6 +474,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
 
   const saveFlightDetails = async (flightDetailsData, tripDocId) => {
     try {
+      // Check if the tripDocId is available
       if (!tripDocId) {
         console.error("Trip ID not found in localStorage");
         throw new Error("Trip must be generated before saving flight details.");
@@ -473,7 +482,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
 
       await setDoc(doc(db, "FlightDetails", tripDocId), {
         tripId: tripDocId,
-        userEmail: "hashimcode123@gmail.com",
+        userEmail: user.email,
         flightDetails: flightDetailsData,
         createdAt: new Date().toISOString(),
       });
@@ -512,7 +521,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
         {
         "flights": [
           {
-            "departure_date": $${date},
+            "departure_date": ${date},
             "return_date": ${returnDate},
             "origin": ${from},
             "destination": ${place},
@@ -537,12 +546,15 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
       `;
 
     try {
-      const chatSession = await createChatSession("gemini-1.5-pro");
+      const chatSession = await createChatSession("gemini-1.5-flash-8b");
       const result = await chatSession.sendMessage(AI_PROMPT);
       const rawTripData = result?.response?.text();
 
-      const cleaned = cleanJsonString(rawTripData);
-      const parsedFlightData = safeParseJson(cleaned);
+      // Debugging: Check for weird characters and JSON parsing issues
+      const cleaned = cleanJsonString(rawTripData); // optional debug
+
+      // Debugging: Check for JSON parsing issues
+      const parsedFlightData = safeParseJson(cleaned); // optional debug
 
       await saveFlightDetails(parsedFlightData, docId); // ✅ use same docId
       // setHasGenerated(true);
@@ -557,9 +569,9 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
   return (
     <motion.div
       className="sm:px-10 md:px-20 lg:px-56 xl:px-72 px-5 my-30"
-      variants={container}
-      initial="hidden"
-      animate="visible"
+      variants={container} // animation variants
+      initial="hidden" // initial state for the animation
+      animate="visible" // animate to the visible state
     >
       <motion.h2 variants={item} className="font-bold text-3xl">
         Tell us your travel preferences 🏕️🌴
@@ -608,6 +620,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
         </motion.div> */}
         <motion.div variants={item}>
           <h2 className="text-xl my-3 font-medium">From Where ? (GeoNames)</h2>
+          {/* place names autocomplete API, (GeoNames) */}
           <GeoNamesAutocomplete
             value={from}
             onChange={(v) => {
@@ -644,6 +657,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
           <h2 className="text-xl my-3 font-medium">
             What is your destination of choice ?
           </h2>
+          {/* place names autocomplete API, (GeoNames) */}
           <GeoNamesAutocomplete
             value={place}
             onChange={(v) => {
@@ -666,10 +680,12 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
           <div className="flex flex-col md:flex-row gap-20 items-center">
             <motion.div variants={item}>
               <h2 className="text-xl my-3 font-medium">starting Date</h2>
+              {/* chadcn component Calender */}
               <Calendar mode="single" selected={date} onSelect={setDate} />
             </motion.div>
             <motion.div variants={item}>
               <h2 className="text-xl my-3 font-medium">Ending Date</h2>
+              {/* chadcn component Calender */}
               <Calendar
                 mode="single"
                 selected={returnDate}
@@ -688,9 +704,10 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
               <motion.div
                 variants={item}
                 key={index}
-                onClick={() => handleInputChange("budget", item.title)}
+                onClick={() => handleInputChange("budget", item.title)} // update the budget in formData
                 className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg ${
-                  formData?.budget === item.title && "shadow-lg border-black"
+                  // if the budget in formData matches the current item title, apply additional styles
+                  formData?.budget === item.title && "shadow-lg border-black" // highlight selected budget
                 }`}
               >
                 <h2 className="text-4xl">{item.icon}</h2>
@@ -710,9 +727,10 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
               <motion.div
                 variants={item}
                 key={index}
-                onClick={() => handleInputChange("travelers", item.people)}
-                className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg ${
-                  formData?.travelers === item.people &&
+                onClick={() => handleInputChange("travelers", item.people)} // update the travelers in formData
+                className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg ${ 
+                  formData?.travelers === item.people && // highlight selected travelers
+                  // if the travelers in formData matches the current item people, apply additional styles
                   "shadow-lg border-black"
                 }`}
               >
@@ -730,9 +748,8 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
         <Button
           onClick={async () => {
             const newTripDocId = Date.now().toString(); // always generate a fresh ID
-            // localStorage.setItem("tripDocId", newTripDocId);
-            await generateTrip(newTripDocId);
-            await generateFLightDetails(newTripDocId);
+            await generateTrip(newTripDocId); // passing the new ID to generateTrip
+            await generateFLightDetails(newTripDocId); // passing the new ID to generateFLightDetails
           }}
           disabled={loading}
         >

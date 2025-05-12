@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPlaceImageWikiMedia } from "@/services/GglPlaceImgApi";
-import { useLoading } from "@/context/ViewTripLoadingContext"; // ✅ import context
+import { useLoading } from "@/context/ViewTripLoadingContext";
 import placeholderimg from "../../assets/placeholder.jpg";
 
 const HotelCardItem = ({ hotel }) => {
   const [placePhoto, setPlacePhoto] = useState(null);
-  const { showLoading, hideLoading } = useLoading(); // ✅ use loading context
+  const { showLoading, hideLoading } = useLoading();
 
+  // This useEffect hook is responsible for fetching a photo of a hotel using its name or address and updating the component's state with the retrieved photo URL.
+  // It also manages a global loading state during the fetch process
   useEffect(() => {
     const getPlacePhoto = async () => {
       showLoading(); // ✅ show global loading
       try {
         const hotelName = hotel.hotelName || hotel.hotelAddress;
-        const photoUrl = await getPlaceImageWikiMedia(hotelName);
-        setPlacePhoto(photoUrl);
+        const photoUrl = await getPlaceImageWikiMedia(hotelName); // passing the hotel name or address to the function
+        setPlacePhoto(photoUrl); // set the photo URL to the state
       } catch (error) {
         console.error("Error fetching Wikimedia photo:", error);
       } finally {

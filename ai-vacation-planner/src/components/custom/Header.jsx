@@ -24,6 +24,9 @@ import { FaRegCircleQuestion } from "react-icons/fa6";
 
 const Header = () => {
   const [openDialog, setOpenDialog] = useState(false);
+  // if the user is switching accounts, set the mode to "switch" and the text on the dialog to "Switch Account"
+  // if the user is logging in, set the mode to "login" and the text on the dialog to "Login"
+  const [loginMode, setLoginMode] = useState("login"); // "login" | "switch account"
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
@@ -51,18 +54,26 @@ const Header = () => {
     navigate("/");
   };
 
+  // The useEffect hook is used to perform side effects in functional components.
+  // In this case, it sets up and cleans up a scroll event listener on the window object.
   useEffect(() => {
     const handleScroll = () => {
+      // It checks the vertical scroll position of the window using window.scrollY.
       if (window.scrollY > 10) {
+        // If the user has scrolled more than 10 pixels vertically (window.scrollY > 10),
+        // it sets the isScrolled state to true by calling setIsScrolled(true).
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
     };
 
+    // The window.addEventListener("scroll", handleScroll) line attaches the handleScroll function to the scroll event of the window object.
+    // This ensures that the function is called whenever the user scrolls.
     window.addEventListener("scroll", handleScroll);
+    // This removes the event listener when the component is unmounted, preventing memory leaks or unwanted behavior.
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, []); // The empty dependency array ([]) ensures that this effect runs only once, when the component is mounted, and cleans up when the component is unmounted.
 
   useEffect(() => {
     if (user) {
@@ -83,19 +94,26 @@ const Header = () => {
       </Link>
       <div className="flex items-center gap-2">
         <div className="hidden md:flex items-center gap-5">
-          {location.pathname !== "/" ? (
+          {location.pathname !== "/" ? ( // if not on the home page
             <Link to={"/"}>
+              {" "}
+              {/* show Link to home page */}
               <Button variant="outline">Back to Home</Button>
             </Link>
           ) : (
+            // if on the home page
             <div className="hidden md:flex items-center gap-5">
-              {location.pathname === "/" ? (
+              {location.pathname === "/" ? ( // if on the home page
+                // show Links (Features and How it works)
                 <div className="flex items-center gap-5">
+                  {/* Features Link */}
                   <motion.div
+                    // some animation for the features and how it works links
                     onHoverStart={() => techControls.start({ y: 0 })}
                     onHoverEnd={() => techControls.start({ y: 40 })}
                     className="flex items-center gap-2 relative overflow-hidden font-medium hover:text-orange-500 transition-colors cursor-pointer"
                   >
+                    {/* it ill scroll down to Features Section */}
                     <a href="/#features" className="flex items-center gap-2">
                       <motion.div
                         initial={{ y: 40 }}
@@ -107,11 +125,13 @@ const Header = () => {
                       <span>Features</span>
                     </a>
                   </motion.div>
+                  {/*  */}
                   <motion.div
                     onHoverStart={() => howItWorkControls.start({ y: 0 })}
                     onHoverEnd={() => howItWorkControls.start({ y: 40 })}
                     className="flex items-center gap-2 relative overflow-hidden font-medium hover:text-orange-500 transition-colors cursor-pointer"
                   >
+                    {/* it ill scroll down to How it works Section */}
                     <a
                       href="/#how-it-works"
                       className="flex items-center gap-2"
@@ -131,11 +151,14 @@ const Header = () => {
             </div>
           )}
         </div>
-        {user ? (
+        {user ? ( // if user is logged in
+          // show Create Trip and My Trips Links
           <div className="flex items-center gap-5">
             {/* <Button variant="outline" className="rounded-full"> */}
             {location.pathname !== "/create-trip" ? (
+              // if not on the create trip page show Create Trip Link
               <motion.div
+                // some animation for the create trip link
                 onHoverStart={() => plusControls.start({ y: 0 })}
                 onHoverEnd={() => plusControls.start({ y: 40 })}
                 className="hidden md:flex items-center gap-3 relative overflow-hidden font-medium hover:text-orange-500 transition-colors cursor-pointer"
@@ -146,7 +169,7 @@ const Header = () => {
                     animate={plusControls}
                     transition={{ duration: 0.3, ease: "easeOut" }}
                   >
-                    <FaPlus className="ml-2"/>
+                    <FaPlus className="ml-2" />
                   </motion.div>
                   <span>Create Trip</span>
                 </Link>
@@ -154,7 +177,7 @@ const Header = () => {
             ) : null}
 
             {/* My Trips */}
-            {location.pathname !== "/my-trips" ? (
+            {location.pathname !== "/my-trips" ? ( // if not on the my trips page show My Trips Link
               <motion.div
                 onHoverStart={() => mapControls.start({ y: 0 })}
                 onHoverEnd={() => mapControls.start({ y: 40 })}
@@ -205,7 +228,14 @@ const Header = () => {
                         "Logout"
                       )}
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setLoginMode("switch");
+                        setOpenDialog(true);
+                      }}
+                    >
                       Switch Account
                     </Button>
                   </div>
@@ -216,14 +246,21 @@ const Header = () => {
         ) : (
           <div>
             {location.pathname === "/create-trip" && !user ? (
+              // if on the create trip page and user is not logged in
+              // show Login button
               <Button
                 variant="outline"
                 className="hidden md:block ml-5"
-                onClick={() => setOpenDialog(true)}
+                onClick={() => {
+                  setOpenDialog(true);
+                  setLoginMode("login");
+                }}
               >
                 Login
               </Button>
             ) : (
+              // if not on the create trip page and user is not logged in
+              // show Get Started button
               <Link to="/create-trip">
                 <Button className="hidden md:block ml-5 bg-orange-500 text-white hover:bg-orange-600">
                   Get Started
@@ -233,8 +270,13 @@ const Header = () => {
           </div>
         )}
       </div>
-      <LoginDialog openDialog={openDialog} setOpenDialog={setOpenDialog} />
+      <LoginDialog
+        openDialog={openDialog}
+        setOpenDialog={setOpenDialog}
+        mode={loginMode}
+      />
 
+      {/* Same logic of the Header is applied to the Header For Mobile */}
       {/* Mobile */}
       <div className="md:hidden">
         <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2">
@@ -300,9 +342,16 @@ const Header = () => {
                           "Logout"
                         )}
                       </Button>
-                      {/* <Button variant="outline" className="w-full">
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          setLoginMode("login");
+                          setOpenDialog(true);
+                        }}
+                      >
                         Switch Account
-                      </Button> */}
+                      </Button>
                     </div>
                   </PopoverContent>
                 </Popover>

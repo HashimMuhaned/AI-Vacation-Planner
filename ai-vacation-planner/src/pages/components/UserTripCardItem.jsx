@@ -8,23 +8,23 @@ const UserTripCardItem = ({ trip }) => {
   useEffect(() => {
     const getPlacePhotos = async () => {
       try {
-        const placeName = trip?.userSelection?.place;
-        const photos = await getCountryImagesUnSplash(placeName);
-        setPlacePhoto(photos); // Now an array!
+        const placeName = trip?.userSelection?.place; // Ensure placeName is defined
+        const photos = await getCountryImagesUnSplash(placeName); // passing placeName
+        setPlacePhoto(photos); // Set the first photo as the place photo
       } catch (error) {
         console.error("Error fetching country photos:", error);
       }
     };
 
     if (trip?.userSelection?.place) {
-      getPlacePhotos();
+      getPlacePhotos(); // call the function to fetch photos
     }
   }, [trip]);
   return (
     <Link to={`/view-trip/${trip?.id}`} className="cursor-pointer">
       <div className="hover:scale-105 transition-all">
         <img
-          src={placePhoto}
+          src={placePhoto || placeholderimg}
           alt=""
           className="object-cover rounded-xl h-[200px] w-full"
         />

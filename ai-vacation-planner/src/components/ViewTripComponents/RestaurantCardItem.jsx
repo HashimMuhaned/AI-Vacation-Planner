@@ -9,15 +9,22 @@ const RestaurantCardItem = ({ restaurant = {}, filterRestaurant }) => {
   const [hasError, setHasError] = useState(false);
   const { showLoading, hideLoading } = useLoading(); // ✅ Use loading context
 
+  // hook in React that fetches photos for a list of restaurants when the restaurant?.restaurants dependency changes.
+  // This hook ensures that the photos are retrieved asynchronously and updates the component's state accordingly
   useEffect(() => {
+    // The fetchPhotos function is an asynchronous function responsible for fetching photos for each restaurant in the restaurant?.restaurants array.
     const fetchPhotos = async () => {
-      const newPhotos = {};
+      const newPhotos = {}; // Initialize newPhotos: An empty object is created to store the fetched photos, with the restaurant names as keys.
       showLoading(); // ✅ Show global loader
       try {
+        // The function iterates over the restaurant?.restaurants array using a for...of loop
         for (const r of restaurant?.restaurants || []) {
           try {
+            // It calls the getPlaceImageWikiMedia function,
+            // passing the restaurant's name (r.restaurantName) to fetch the photo URL from Wikimedia.
             const photoURL = await getPlaceImageWikiMedia(r.restaurantName);
-            newPhotos[r.restaurantName] = photoURL || placeholderimg;
+            newPhotos[r.restaurantName] = photoURL || placeholderimg; // If a photo URL is successfully retrieved, it is stored in the newPhotos object {r.restauranName as key: photoURL as value}.
+            // If no URL is found, a placeholder image (placeholderimg) is used instead.
           } catch (err) {
             console.error(
               `Error fetching Wikimedia image for ${r.restaurantName}`,
@@ -52,17 +59,26 @@ const RestaurantCardItem = ({ restaurant = {}, filterRestaurant }) => {
     return null;
   }
 
-  let filteredRestaurants = [];
+  let filteredRestaurants = []; // an empty array. This will hold the filtered list of restaurants after applying the filtering logic.
 
   try {
+    // filters a list of restaurants based on user-selected criteria (filterRestaurant).
+    // It ensures that only restaurants matching the selected filters are included in the filteredRestaurants array
     filteredRestaurants = restaurant.restaurants.filter((r) => {
+      // For each restaurant (r)
+      // The restaurantType property of the restaurant is stored in the types variable
       const types = r.restaurantType || {};
+      // If the filterRestaurant array includes "all", the function immediately returns true.
+      // meaning all restaurants will be included in the filtered list.
       if (filterRestaurant.includes("all")) return true;
 
+      // Otherwise, the .some() method is used to check if any of the selected filters match the restaurant's type.
       return filterRestaurant.some((filter) => {
-        if (filter === "veg") return types["Vegetarian"];
-        if (filter === "halal") return types["Halal"];
-        if (filter === "dessert") return types["Dessert"];
+        if (filter === "veg") return types["Vegetarian"]; // If the filter is "veg", the code checks if the types object has a Vegetarian property.
+        if (filter === "halal") return types["Halal"]; // If the filter is "halal", it checks for the Halal property.
+        if (filter === "dessert") return types["Dessert"]; // If the filter is "dessert", it checks for the Dessert property.
+
+        // If none of these conditions are met, the function returns false, excluding the restaurant from the filtered list.
         return false;
       });
     });
@@ -80,11 +96,11 @@ const RestaurantCardItem = ({ restaurant = {}, filterRestaurant }) => {
           to={`https://www.google.com/maps/search/?api=1&query=${r.restaurantName}`}
           target="_blank"
         >
-          <div className="border rounded-xl p-3 mt-2 flex gap-5 hover:scale-105 transition-all shadow-md cursor-pointer">
+          <div className="flex flex-col border rounded-xl p-3 mt-2 md:flex md:flex-row gap-5 hover:scale-105 transition-all shadow-md cursor-pointer">
             <img
               src={placePhotos[r.restaurantName] || placeholderimg}
               alt={r.restaurantName}
-              className="w-[130px] h-[130px] object-cover rounded-xl"
+              className="w-full h-[200px] md:w-[130px] md:h-[170px] object-cover rounded-xl"
             />
             <div>
               <h2 className="font-bold text-lg">{r.restaurantName}</h2>
@@ -92,10 +108,16 @@ const RestaurantCardItem = ({ restaurant = {}, filterRestaurant }) => {
               <h2 className="mt-2">⏰ {r.restaurantRating}</h2>
               <h2 className="mt-2">
                 🎟️{" "}
-                {Object.entries(r.restaurantType || {})
-                  .filter(([_, value]) => value)
-                  .map(([key]) => key)
-                  .join(", ")}
+                {
+                  Object.entries(r.restaurantType || {}) // Converts the restaurantType object into an array of key-value pairs.
+                    // example: [["Vegetarian", true], ["Halal", false], ["Dessert", true]]
+                    .filter(([_, value]) => value) // Filters the array to include only the entries where the value is true.
+                    // example: [["Vegetarian", true], ["Dessert", true]]
+                    .map(([key]) => key) // Extracts the keys (type names) from the filtered array.
+                    // example: ["Vegetarian", "Dessert"]
+                    .join(", ") // Joins the keys into a single string, separated by commas.
+                  // example: "Vegetarian, Dessert"
+                }
               </h2>
             </div>
           </div>

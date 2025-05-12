@@ -2,7 +2,6 @@ import React from "react";
 import { Bot, Clock, Filter, Globe, Map, Star, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
 
-
 const Features = () => {
   const features = [
     {
@@ -45,7 +44,7 @@ const Features = () => {
 
   return (
     <section id="features" className="py-16 md:py-24 bg-white">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl mx-auto lg:px-8">
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-12 md:mb-16">
           <div className="inline-flex items-center bg-orange-500/10 px-4 py-2 rounded-full mb-4">
             <Star className="h-5 w-5 text-orange-500 mr-2" />

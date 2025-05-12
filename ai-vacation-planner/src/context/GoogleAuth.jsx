@@ -42,19 +42,24 @@ export const AuthProvider = ({ children }) => {
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        const userProfile = {
-          name: firebaseUser.displayName,
-          email: firebaseUser.email,
-          picture: firebaseUser.photoURL,
-        };
-        setUser(userProfile);
-      } else {
-        setUser(null);
+    // onAuthStateChanged function is provided by Firebase Authentication and is used to monitor the authentication state of the user.
+    const unsubscribe = onAuthStateChanged(
+      auth, // auth: The Firebase authentication instance.
+      (firebaseUser) => {
+        // (firebaseUser) A callback function that receives the firebaseUser object whenever the authentication state changes.
+        if (firebaseUser) {
+          const userProfile = {
+            name: firebaseUser.displayName,
+            email: firebaseUser.email,
+            picture: firebaseUser.photoURL,
+          };
+          setUser(userProfile);
+        } else {
+          setUser(null);
+        }
+        setAuthLoading(false); // ✅ Mark auth as resolved
       }
-      setAuthLoading(false); // ✅ Mark auth as resolved
-    });
+    );
 
     return () => unsubscribe();
   }, []);

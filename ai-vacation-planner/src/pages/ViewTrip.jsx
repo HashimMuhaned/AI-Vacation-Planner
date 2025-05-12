@@ -12,16 +12,16 @@ import { FlightDisplayCard } from "./components/FlightDisplayCard";
 import { useLoading } from "@/context/ViewTripLoadingContext"; // ✅ Import global loading context
 
 const ViewTrip = () => {
-  const { tripId } = useParams();
-  const [tripData, setTripData] = useState(null);
+  const { tripId } = useParams(); // getting the tripId from the URL 
+  const [tripData, setTripData] = useState(null); // ✅ State to hold trip data
   const { showLoading, hideLoading } = useLoading(); // ✅ Use loading context
 
   useEffect(() => {
     const fetchTripData = async () => {
       showLoading(); // ✅ Global spinner on
       try {
-        const docRef = doc(db, "Trips", tripId);
-        const docSnap = await getDoc(docRef);
+        const docRef = doc(db, "Trips", tripId); // ✅ Get the document reference
+        const docSnap = await getDoc(docRef); // ✅ Fetch the document
 
         if (docSnap.exists()) {
           setTripData(docSnap.data());
@@ -51,7 +51,7 @@ const ViewTrip = () => {
   if (!tripData) return null;
 
   return (
-    <div className="mt-25 p-5 md:px-20 lg:px-44 xl:px-56 md:mt-25">
+    <div className="mt-25 p-3 md:px-20 lg:px-44 xl:px-56 md:mt-25">
       <InfoSection tripData={tripData} />
       <FlightDisplayCard flightData={cleanedFlightData} tripDocId={tripId} />
       <HotelsInfo hotels={cleanedTripDateHotelsInfo} />

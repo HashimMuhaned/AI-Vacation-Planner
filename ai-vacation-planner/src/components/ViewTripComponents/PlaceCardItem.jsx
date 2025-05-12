@@ -10,11 +10,11 @@ const PlaceCardItem = ({ place }) => {
 
   useEffect(() => {
     const getPlacePhoto = async () => {
-      showLoading(); // ✅ Trigger global loading
+      showLoading(); // Trigger global loading
       try {
-        const placeName = place.placeName;
-        const photoURL = await getPlaceImageWikiMedia(placeName);
-        setPlacePhoto(photoURL);
+        const placeName = place.placeName; // get the place name from the prop
+        const photoURL = await getPlaceImageWikiMedia(placeName); // pass the place name to the function
+        setPlacePhoto(photoURL); // set the photo URL to state
         console.log("Wikimedia photo URL:", photoURL);
       } catch (error) {
         console.error("Error fetching Wikimedia place photo:", error);
@@ -23,7 +23,7 @@ const PlaceCardItem = ({ place }) => {
       }
     };
 
-    if (place?.placeName) {
+    if (place?.placeName) { // Check if placeName exists
       getPlacePhoto();
     }
   }, [place]);
@@ -33,11 +33,11 @@ const PlaceCardItem = ({ place }) => {
       to={`https://www.google.com/maps/search/?api=1&query=${place?.placeName}`}
       target="_blank"
     >
-      <div className="border rounded-xl p-3 mt-2 flex gap-5 hover:scale-105 transition-all shadow-md cursor-pointer">
+      <div className="flex flex-col border rounded-xl p-3 mt-2 md:flex md:flex-row gap-5 hover:scale-105 transition-all shadow-md cursor-pointer">
         <img
           src={placePhoto || placeholderimg}
           alt={place.placeName}
-          className="w-[130px] h-[170px] object-cover rounded-xl"
+          className="w-full h-[200px] md:w-[130px] md:h-[170px] object-cover rounded-xl"
         />
         <div>
           <h2 className="font-bold text-lg">{place.placeName}</h2>

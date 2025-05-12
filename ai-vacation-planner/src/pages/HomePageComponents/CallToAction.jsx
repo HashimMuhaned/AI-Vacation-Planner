@@ -28,7 +28,7 @@ const CallToAction = () => {
       viewport={{ once: true, amount: 0.4 }}
       variants={fadeInUp}
     >
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl mx-auto lg:px-8">
         <div className="bg-gray-900 rounded-2xl overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2">
             <div className="p-8 md:p-12 flex flex-col justify-center">

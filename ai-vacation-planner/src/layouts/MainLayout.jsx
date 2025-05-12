@@ -5,6 +5,7 @@ import Header from "@/components/custom/Header";
 const MainLayout = () => {
   return (
     <Fragment>
+      {/* The Navbar will always be displayed */}
       <Header />
       <Outlet />
     </Fragment>

@@ -38,7 +38,7 @@ const myTrips = () => {
   useEffect(() => {
     const getUserTrips = async () => {
       try {
-        if (authLoading) {
+        if (authLoading) { // Check if auth is still loading
           return (
             <div className="flex flex-col items-center justify-center h-screen">
               <AiOutlineLoading3Quarters className="animate-spin text-4xl" />
@@ -46,12 +46,12 @@ const myTrips = () => {
           );
         }
 
-        if (!authLoading && !user) {
+        if (!authLoading && !user) { // If user is not authenticated
           return (
             <>
               <LoginDialog
                 openDialog={true}
-                setOpenDialog={() => navigate("/")}
+                setOpenDialog={() => navigate("/")} // Redirect to login page
               />
             </>
           );
@@ -72,9 +72,14 @@ const myTrips = () => {
         setUserTrips([]); // Clear previous trips
         querySnapshot.forEach((doc) => {
           console.log(doc.id, " => ", doc.data());
-          setUserTrips((prevTrips) => [
-            ...prevTrips,
+          setUserTrips((prevTrips) => [ 
+            // It uses the functional form of the state updater to ensure the previous state (prevTrips) is correctly preserved.
+            ...prevTrips, // The spread operator (...prevTrips) adds all existing trips in the userTrips array to the new array.
             { id: doc.id, ...doc.data() },
+            // A new object is created for the current document, combining:
+            // The document's ID (id: doc.id).
+            // The document's data (...doc.data()), which is spread into the new
+            // This ensures that each trip in the userTrips array includes both the document's ID and its data.
           ]);
         });
         setLoading(false);
@@ -87,35 +92,50 @@ const myTrips = () => {
     getUserTrips();
   }, [authLoading, user, navigate]); // include navigate in deps
 
+
+  // purpose:
+  // The imagesLoaded state is set to true only after all images in the userTrips array have either loaded successfully or failed to load.
+  // timeout fallback prevents the app from waiting indefinitely for images that fail to load.
+
+  // benefit:
+  // It ensures that the app waits for all images to load before displaying them, improving the user experience.
+  // The timeout fallback ensures the app doesn't hang if some images fail to load.
   useEffect(() => {
     if (userTrips.length === 0) {
-      setImagesLoaded(true);
+      setImagesLoaded(true); // This avoids unnecessary processing when there are no trips.
       return;
     }
 
+    // A counter is initialized to track how many images have successfully loaded.
     let loadedCount = 0;
 
     const handleImageLoad = () => {
-      loadedCount++;
+      loadedCount++; // It increments the loadedCount variable.
       if (loadedCount === userTrips.length) {
         setImagesLoaded(true);
       }
+      // If the number of loaded images equals the total number of trips (userTrips.length), 
+      // it sets imagesLoaded to true, indicating that all images are ready.
     };
 
     // Timeout fallback in case some images fail to load
     const timeout = setTimeout(() => {
       setImagesLoaded(true);
-    }, 5000);
+    }, 5000); // 5 seconds timeout
 
     userTrips.forEach((trip) => {
       const img = new Image();
       img.src = trip.imageUrl; // Assuming trip.imageUrl is the image source used in UserTripCardItem
-      img.onload = handleImageLoad;
-      img.onerror = handleImageLoad;
+      img.onload = handleImageLoad; // when the image loads successfully.
+      img.onerror = handleImageLoad; // if the image fails to load.
     });
 
     return () => clearTimeout(timeout);
+   // This ensures that the timeout is canceled,
+   // if the component is unmounted or the userTrips array changes before the timeout completes.
   }, [userTrips]);
+  // The useEffect hook runs whenever the userTrips array changes. 
+  // This ensures that the logic is executed whenever new trips are added or the array is updated.
 
   const isReady = !loading && imagesLoaded;
 
@@ -135,11 +155,11 @@ const myTrips = () => {
 
   return (
     <div className="sm:px-10 md:px-20 lg:px-56 xl:px-72 px-5 my-25">
-      {authLoading ? (
+      {authLoading ? ( // Check if auth is still loading
         <div className="flex flex-col items-center justify-center h-screen">
           <AiOutlineLoading3Quarters className="animate-spin text-4xl" />
         </div>
-      ) : !user ? (
+      ) : !user ? ( // If user is not authenticated, it opens the login dialog
         <>
           <LoginDialog openDialog={openDialog} setOpenDialog={setOpenDialog} />
         </>

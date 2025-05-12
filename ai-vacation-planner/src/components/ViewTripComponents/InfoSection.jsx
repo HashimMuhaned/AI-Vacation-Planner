@@ -47,9 +47,9 @@ const InfoSection = ({ tripData }) => {
     const getPlacePhotos = async () => {
       showLoading(); // Start global loading
       try {
-        const placeName = tripData?.userSelection?.place;
-        const photos = await getCountryImagesUnSplash(placeName);
-        setPlacePhoto(photos);
+        const placeName = tripData?.userSelection?.place; // Get the place name from tripData
+        const photos = await getCountryImagesUnSplash(placeName); // passing placeName to the function
+        setPlacePhoto(photos); // Set the photos in state
       } catch (error) {
         console.error("Error fetching country photos:", error);
       } finally {
@@ -59,6 +59,7 @@ const InfoSection = ({ tripData }) => {
     };
 
     if (tripData?.userSelection?.place) {
+      // Check if place is available then fetch photos
       getPlacePhotos();
     } else {
       setIsReady(true);
@@ -66,6 +67,9 @@ const InfoSection = ({ tripData }) => {
     }
   }, [tripData]);
 
+  // This useEffect is used to update the current and count state variables whenever the api or placePhoto changes.
+  // It listens for the "select" and "reInit" events from the carousel API to update the current slide and total count of slides.
+  // it is from the chadcn documentation
   useEffect(() => {
     if (api) {
       const updateSnapData = () => {
@@ -73,7 +77,7 @@ const InfoSection = ({ tripData }) => {
         setCount(snaps.length);
         setCurrent(api.selectedScrollSnap() + 1);
       };
-
+      // The api.scrollSnapList() method is used to get the list of scroll snaps, and api.selectedScrollSnap() is used to get the currently selected snap.
       updateSnapData();
       api.on("select", updateSnapData);
       api.on("reInit", updateSnapData);
@@ -81,6 +85,8 @@ const InfoSection = ({ tripData }) => {
   }, [api, placePhoto]);
 
   const deleteTrip = async () => {
+    // Check if user is authenticated
+    // If not, show the login dialog
     if (!user) {
       setOpenDialog(true);
       return;
@@ -103,8 +109,12 @@ const InfoSection = ({ tripData }) => {
     <div className="mx-auto">
       <Carousel setApi={setApi} className="rounded-xl">
         <CarouselContent>
-          {(placePhoto.length ? placePhoto : [placeholderimg]).map(
-            (photo, index) => (
+          {/*The expression (placePhoto.length ? placePhoto : [placeholderimg]) determines the source of the content to be displayed */}
+          {(placePhoto.length // If placePhoto (an array) contains elements, it is used as the source of images.
+            ? placePhoto
+            : [placeholderimg]
+          ) // If placePhoto is empty, a fallback array containing a single placeholderimg is used instead.
+            .map((photo, index) => (
               <CarouselItem key={index}>
                 {photo ? (
                   <img
@@ -119,8 +129,7 @@ const InfoSection = ({ tripData }) => {
                   </div>
                 )}
               </CarouselItem>
-            )
-          )}
+            ))}
         </CarouselContent>
         <CarouselNext />
         <CarouselPrevious />
