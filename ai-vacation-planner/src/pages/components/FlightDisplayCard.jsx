@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/services/FirebaseConfig";
 import { getPlaceImageWikiMedia } from "@/services/GglPlaceImgApi";
-import { useLoading } from "@/context/ViewTripLoadingContext"; // ✅ make sure this is correct
+import { useLoading } from "@/context/ViewTripLoadingContext"; // make sure this is correct
 import placeholderImg from "@/assets/placeholder.jpg";
 
 export const FlightDisplayCard = ({ flightData, tripDocId }) => {
@@ -105,7 +105,7 @@ export const FlightDisplayCard = ({ flightData, tripDocId }) => {
               key={index}
               className="border rounded-xl p-3 mt-2 hover:scale-105 transition-all shadow-md cursor-pointer"
             >
-              <div className="flex flex-col md:flex gap-5">
+              <div className="flex flex-col md:flex md:flex-row gap-5">
                 <img
                   src={airlineImages[option.airline_name] || placeholderImg}
                   alt={option.airline_name}

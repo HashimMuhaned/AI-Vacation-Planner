@@ -39,7 +39,8 @@ export const getCountryImage = async (countryName) => {
       }
     );
 
-    const places = response.data.places || [];
+    // The places array is extracted from the API response
+    const places = response.data.places || []; // If no places are found, it defaults to an empty array.
 
     // Extract photo URLs from results
     const photoUrls = places
@@ -63,18 +64,22 @@ export const getCountryImage = async (countryName) => {
 
 export const getCountryImagesUnSplash = async (placeId) => {
   const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-    placeId
+    placeId // The placeId is URL-encoded to ensure it is safe for use in the query string.
   )}&client_id=${
     import.meta.env.VITE_UNSPLASH_ACCESS_KEY
   }&per_page=10&orientation=landscape`;
 
   try {
+    // The fetch function is used to make a GET request to the Unsplash API.
     const response = await fetch(url);
+    // The response is then converted to JSON format.
     const data = await response.json();
 
     if (data.results && data.results.length > 0) {
+      // If the results array exists and contains at least one image,
+      // the function maps over the array to extract the raw URL for each image.
       return data.results.map(
-        (result) => `${result.urls.raw}&w=800&h=400&fit=crop`
+        (result) => `${result.urls.raw}&w=800&h=400&fit=crop` // resize the image to 800x400 pixels and crop it to fit the specified dimensions.
       );
     } else {
       console.warn("No images found for:", placeId);
@@ -93,7 +98,8 @@ export const getPlaceImageWikiMedia = async (textQuery) => {
 
   try {
     const response = await axios.get(commonsApiUrl);
-    const pages = response.data?.query?.pages;
+    const pages = response.data?.query?.pages; // The function extracts the pages object from the API response
+    console.log("Pages:", pages); // This is for debugging purposes
     const firstPage = pages ? Object.values(pages)[0] : null;
     return firstPage?.imageinfo?.[0]?.url || null;
   } catch (error) {

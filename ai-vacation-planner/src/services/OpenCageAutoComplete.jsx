@@ -13,7 +13,9 @@ const OpenCageAutocomplete = ({ value, onChange, placeholder }) => {
   const OPENCAGE_API_KEY = import.meta.env.VITE_OPENCAGE_API_KEY; // Replace this with your API key
 
   useEffect(() => {
+    // This debounce mechanism ensures that the API call is only made after the user has stopped typing for 300ms
     const delayDebounce = setTimeout(() => {
+      // The hook first checks whether the input field has been interacted with (touched) and whether a valid value already exists (value?.label)
       if (!touched && value?.label) return;
       if (inputValue.length > 2) {
         setLoading(true);
@@ -21,12 +23,13 @@ const OpenCageAutocomplete = ({ value, onChange, placeholder }) => {
           .get("https://api.opencagedata.com/geocode/v1/json", {
             params: {
               key: OPENCAGE_API_KEY,
-              q: inputValue,
+              q: inputValue, // The query string (user's input).
               limit: 5,
               language: "en",
             },
           })
           .then((res) => {
+            // On a successful response, the setSuggestions function updates the state with the list of suggestions
             setSuggestions(res.data.results || []);
             setLoading(false);
           })
@@ -35,10 +38,12 @@ const OpenCageAutocomplete = ({ value, onChange, placeholder }) => {
             setLoading(false);
           });
       } else {
+        // If the input value is less than three characters long, the suggestions are cleared
         setSuggestions([]);
       }
     }, 300);
 
+    // The clearTimeout function in the cleanup function ensures that any pending timeout is canceled if the component re-renders before the delay is complete
     return () => clearTimeout(delayDebounce);
   }, [inputValue, touched]);
 
@@ -50,7 +55,7 @@ const OpenCageAutocomplete = ({ value, onChange, placeholder }) => {
   const handleSelect = (place) => {
     const placeObj = {
       label: place.formatted,
-      value: `${place.geometry.lat},${place.geometry.lng}`,
+      value: `${place.geometry.lat},${place.geometry.lng}`, // Concatenate latitude and longitude
     };
     onChange(placeObj);
     setInputValue(place.formatted);
@@ -61,7 +66,11 @@ const OpenCageAutocomplete = ({ value, onChange, placeholder }) => {
   // 🔍 Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+      if (
+        wrapperRef.current && // refers to the DOM element that wraps the autocomplete component (the input field and dropdown).
+        !wrapperRef.current.contains(event.target) // If the clicked element is outside the wrapperRef
+      ) {
+        // the setSuggestions([]) function is called to clear the list of suggestions.
         setSuggestions([]);
       }
     };

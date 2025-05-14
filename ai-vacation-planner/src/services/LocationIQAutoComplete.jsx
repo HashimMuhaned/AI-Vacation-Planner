@@ -13,7 +13,9 @@ const LocationIQAutocomplete = ({ value, onChange, placeholder }) => {
   const API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY;
 
   useEffect(() => {
+    // This debounce mechanism ensures that the API call is only made after the user has stopped typing for 300ms
     const delayDebounce = setTimeout(() => {
+      // The hook first checks whether the input field has been interacted with (touched) and whether a valid value already exists (value?.label)
       if (!touched && value?.label) return;
 
       if (inputValue.length > 2) {
@@ -22,11 +24,12 @@ const LocationIQAutocomplete = ({ value, onChange, placeholder }) => {
           .get("https://api.locationiq.com/v1/autocomplete", {
             params: {
               key: API_KEY,
-              q: inputValue,
+              q: inputValue, // The query string (user's input).
               format: "json",
             },
           })
           .then((res) => {
+            // On a successful response, the setSuggestions function updates the state with the list of suggestions
             setSuggestions(res.data || []);
             setLoading(false);
           })
@@ -35,10 +38,11 @@ const LocationIQAutocomplete = ({ value, onChange, placeholder }) => {
             setLoading(false);
           });
       } else {
+        // If the input value is less than three characters long, the suggestions are cleared
         setSuggestions([]);
       }
     }, 300);
-
+    // The clearTimeout function in the cleanup function ensures that any pending timeout is canceled if the component re-renders before the delay is complete
     return () => clearTimeout(delayDebounce);
   }, [inputValue, touched]);
 
@@ -59,12 +63,17 @@ const LocationIQAutocomplete = ({ value, onChange, placeholder }) => {
   };
 
   useEffect(() => {
+    // The handleClickOutside function is used to close the suggestions list when a click occurs outside the component
     const handleClickOutside = (event) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+      if (
+        wrapperRef.current && // refers to the DOM element that wraps the autocomplete component (the input field and dropdown).
+        !wrapperRef.current.contains(event.target)
+      ) {
+        // If the clicked element is outside the wrapperRef
         setSuggestions([]);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside); // This allows the component to detect clicks anywhere on the page
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };

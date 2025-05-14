@@ -13,7 +13,9 @@ const GeoapifyAutocomplete = ({ value, onChange, placeholder }) => {
   const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY;
 
   useEffect(() => {
+    // This debounce mechanism ensures that the API call is only made after the user has stopped typing for 300ms
     const delayDebounce = setTimeout(() => {
+      // The hook first checks whether the input field has been interacted with (touched) and whether a valid value already exists (value?.label)
       if (!touched && value?.label) return;
 
       if (inputValue.length > 2) {
@@ -21,13 +23,14 @@ const GeoapifyAutocomplete = ({ value, onChange, placeholder }) => {
         axios
           .get("https://api.geoapify.com/v1/geocode/autocomplete", {
             params: {
-              text: inputValue,
+              text: inputValue, // The query string (user's input).
               apiKey: GEOAPIFY_API_KEY,
-              limit: 5,
+              limit: 5, // Limits the number of results to 5.
               lang: "en",
             },
           })
           .then((res) => {
+            // On a successful response, the setSuggestions function updates the state with the list of suggestions
             setSuggestions(res.data.features || []);
             setLoading(false);
           })
@@ -36,10 +39,12 @@ const GeoapifyAutocomplete = ({ value, onChange, placeholder }) => {
             setLoading(false);
           });
       } else {
+        // If the input value is less than three characters long, the suggestions are cleared
         setSuggestions([]);
       }
     }, 300);
 
+    // The clearTimeout function in the cleanup function ensures that any pending timeout is canceled if the component re-renders before the delay is complete
     return () => clearTimeout(delayDebounce);
   }, [inputValue, touched]);
 
@@ -50,23 +55,28 @@ const GeoapifyAutocomplete = ({ value, onChange, placeholder }) => {
 
   const handleSelect = (place) => {
     const placeObj = {
-      label: place.properties.formatted,
-      value: place.properties.place_id,
-      coordinates: place.geometry.coordinates,
+      label: place.properties.formatted, //  A human-readable, formatted address for the location, retrieved from place.properties.formatted
+      value: place.properties.place_id, // A unique identifier for the location, retrieved from place.properties.place_id
+      coordinates: place.geometry.coordinates, // his can be used for further lookups or API calls.coordinates
     };
     onChange(placeObj);
-    setInputValue(place.properties.formatted);
+    setInputValue(place.properties.formatted); // Update the input value to the selected suggestion
     setTouched(false);
-    setSuggestions([]);
+    setSuggestions([]); // Clear suggestions after selection
   };
 
+  // The handleClickOutside function is used to close the suggestions list when a click occurs outside the component
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-        setSuggestions([]);
+      if (
+        wrapperRef.current && // refers to the DOM element that wraps the autocomplete component (the input field and dropdown).
+        !wrapperRef.current.contains(event.target)
+      ) {
+        // If the clicked element is outside the wrapperRef
+        setSuggestions([]); // the setSuggestions([]) function is called to clear the list of suggestions.
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside); // This allows the component to detect clicks anywhere on the page
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };

@@ -13,7 +13,9 @@ const GeoNamesAutocomplete = ({ value, onChange, placeholder }) => {
   const USERNAME = import.meta.env.VITE_GEONAMES_USERNAME; // Required
 
   useEffect(() => {
+    // This debounce mechanism ensures that the API call is only made after the user has stopped typing for 300ms
     const delayDebounce = setTimeout(() => {
+      // The hook first checks whether the input field has been interacted with (touched) and whether a valid value already exists (value?.label)
       if (!touched && value?.label) return;
 
       if (inputValue.length > 2) {
@@ -21,14 +23,15 @@ const GeoNamesAutocomplete = ({ value, onChange, placeholder }) => {
         axios
           .get("https://secure.geonames.org/searchJSON", {
             params: {
-              q: inputValue,
-              maxRows: 5,
-              username: USERNAME,
-              // featureClass: "P", // Only populated places
-              style: "FULL",
+              q: inputValue, // The query string (user's input).
+              maxRows: 5, // Limits the number of results to 5.
+              username: USERNAME, // The GeoNames API username for authentication
+              featureClass: "P", // Only populated places
+              style: "FULL", // Specifies the level of detail in the response (FULL for detailed results).
             },
           })
           .then((res) => {
+            // On a successful response, the setSuggestions function updates the state with the list of suggestions
             setSuggestions(res.data.geonames || []);
             setLoading(false);
           })
@@ -37,10 +40,12 @@ const GeoNamesAutocomplete = ({ value, onChange, placeholder }) => {
             setLoading(false);
           });
       } else {
+        // If the input value is less than three characters long, the suggestions are cleared
         setSuggestions([]);
       }
     }, 300);
 
+    // The clearTimeout function in the cleanup function ensures that any pending timeout is canceled if the component re-renders before the delay is complete
     return () => clearTimeout(delayDebounce);
   }, [inputValue, touched]);
 
@@ -50,25 +55,30 @@ const GeoNamesAutocomplete = ({ value, onChange, placeholder }) => {
   };
 
   const handleSelect = (place) => {
-    const label = `${place.name}, ${place.adminName1 || ""}, ${place.countryName}`;
+    // The function begins by constructing a human-readable label for the selected location
+    const label = `${place.name}, ${place.countryName}`;
     const placeObj = {
-      label,
-      value: place.geonameId,
-      coordinates: [parseFloat(place.lng), parseFloat(place.lat)],
+      label, // The formatted label for the location.
+      value: place.geonameId, // The unique GeoNames ID of the location
+      // coordinates: [parseFloat(place.lng), parseFloat(place.lat)],
     };
     onChange(placeObj);
     setInputValue(label);
     setTouched(false);
-    setSuggestions([]);
+    setSuggestions([]); // The setSuggestions function is called with an empty array to clear the list of suggestions
   };
 
+  // The handleClickOutside function is used to close the suggestions list when a click occurs outside the component
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-        setSuggestions([]);
+      if (
+        wrapperRef.current && // refers to the DOM element that wraps the autocomplete component (the input field and dropdown).
+        !wrapperRef.current.contains(event.target) // If the clicked element is outside the wrapperRef
+      ) {
+        setSuggestions([]); // the setSuggestions([]) function is called to clear the list of suggestions.
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside); // This allows the component to detect clicks anywhere on the page
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -94,7 +104,7 @@ const GeoNamesAutocomplete = ({ value, onChange, placeholder }) => {
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
               onClick={() => handleSelect(sugg)}
             >
-              {sugg.name}, {sugg.adminName1}, {sugg.countryName}
+              {sugg.name}, {sugg.countryName}
             </li>
           ))}
         </ul>
