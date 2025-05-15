@@ -52,6 +52,7 @@ export const AuthProvider = ({ children }) => {
             name: firebaseUser.displayName,
             email: firebaseUser.email,
             picture: firebaseUser.photoURL,
+            uid: firebaseUser.uid,
           };
           setUser(userProfile);
         } else {

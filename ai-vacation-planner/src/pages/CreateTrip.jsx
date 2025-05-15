@@ -186,14 +186,18 @@ const CreateTrip = () => {
   }
 
   const saveTrip = async (tripData, docId) => {
+    if (!user) {
+      showToast("white", "red", "You must be logged in to save a trip.");
+      return;
+    }
+
     try {
-      // The setDoc function is used to write data to a specific document in a Firestore collection.
-      // The doc function is used to create a reference to the specific document in the Trips collection
       await setDoc(doc(db, "Trips", docId), {
         docId,
         userSelection: formData,
         tripData,
         userEmail: user.email,
+        userId: user.uid,
         FlightDetailes: {
           departurePlace: from,
           destination: place,
@@ -483,6 +487,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
       await setDoc(doc(db, "FlightDetails", tripDocId), {
         tripId: tripDocId,
         userEmail: user.email,
+        userId: user.uid,
         flightDetails: flightDetailsData,
         createdAt: new Date().toISOString(),
       });
@@ -728,7 +733,7 @@ Your task is to generate a complete and detailed travel plan **in valid JSON for
                 variants={item}
                 key={index}
                 onClick={() => handleInputChange("travelers", item.people)} // update the travelers in formData
-                className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg ${ 
+                className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg ${
                   formData?.travelers === item.people && // highlight selected travelers
                   // if the travelers in formData matches the current item people, apply additional styles
                   "shadow-lg border-black"

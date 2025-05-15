@@ -15,14 +15,16 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-orange-50 to-orange-100">
-      <div className="max-w-md w-full p-8 bg-white rounded-xl shadow-lg animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center mt-18 md:mt-10">
+      <div className="max-w-md w-full p-8 bg-white rounded-xl animate-fade-in">
         <div className="flex flex-col items-center text-center">
           <div className="p-5 bg-orange-100 rounded-full mb-6">
-            <Compass className="h-16 w-16 text-orange-500" />
+            <Compass className="h-12 w-12 md:h-16 md:w-16 text-orange-500" />
           </div>
-
-          <h1 className="text-4xl font-bold mb-2 text-gray-800">
+          <p className="text-2xl md:text-4xl font-bold mb-2 text-gray-800">
+            404
+          </p>
+          <h1 className="text-2xl font-bold mb-2 text-gray-800">
             Oops! Lost your way?
           </h1>
           <div className="bg-gradient-to-r from-orange-600 to-orange-400 h-1 w-16 mb-6 mx-auto"></div>
@@ -36,7 +38,10 @@ const NotFound = () => {
 
           <div className="space-y-4 w-full">
             <Link to="/" className="block w-full">
-              <Button className="w-full flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-400">
+              <Button
+                variant="orange"
+                className="w-full h-8 px-2 text-sm md:h-10 md:px-6 md:text-base"
+              >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Exploration
               </Button>

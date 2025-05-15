@@ -21,6 +21,7 @@ export default function GoogleLoginButton({ onSuccess }) {
         name: user.displayName,
         email: user.email,
         picture: user.photoURL,
+        uid: user.uid,
       };
 
       setUser(userProfile);

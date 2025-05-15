@@ -22,8 +22,12 @@ const EmptyState = ({
       <div className="mb-6 scale-in-center transition-all duration-500">
         {illustration}
       </div>
-      <h2 className="text-2xl font-bold mb-2 text-gray-800">{title}</h2>
-      <p className="text-gray-600 mb-6 max-w-md">{description}</p>
+      <p className="text-lg md:text-2xl font-bold mb-2 text-gray-800">
+        {title}
+      </p>
+      <p className="text-lg md:text-3xl text-gray-600 mb-6 max-w-md">
+        {description}
+      </p>
       <Button onClick={ctaAction} className="bg-orange-500 hover:bg-orange-400">
         <Link to="/create-trip">{ctaText}</Link>
       </Button>

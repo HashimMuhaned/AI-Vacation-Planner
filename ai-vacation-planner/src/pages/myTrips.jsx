@@ -38,7 +38,8 @@ const myTrips = () => {
   useEffect(() => {
     const getUserTrips = async () => {
       try {
-        if (authLoading) { // Check if auth is still loading
+        if (authLoading) {
+          // Check if auth is still loading
           return (
             <div className="flex flex-col items-center justify-center h-screen">
               <AiOutlineLoading3Quarters className="animate-spin text-4xl" />
@@ -46,7 +47,8 @@ const myTrips = () => {
           );
         }
 
-        if (!authLoading && !user) { // If user is not authenticated
+        if (!authLoading && !user) {
+          // If user is not authenticated
           return (
             <>
               <LoginDialog
@@ -59,7 +61,7 @@ const myTrips = () => {
         setLoading(true);
         const getDataQuery = query(
           collection(db, "Trips"),
-          where("userEmail", "==", user.email)
+          where("userId", "==", user.uid)
         );
 
         const querySnapshot = await getDocs(getDataQuery);
@@ -72,7 +74,7 @@ const myTrips = () => {
         setUserTrips([]); // Clear previous trips
         querySnapshot.forEach((doc) => {
           console.log(doc.id, " => ", doc.data());
-          setUserTrips((prevTrips) => [ 
+          setUserTrips((prevTrips) => [
             // It uses the functional form of the state updater to ensure the previous state (prevTrips) is correctly preserved.
             ...prevTrips, // The spread operator (...prevTrips) adds all existing trips in the userTrips array to the new array.
             { id: doc.id, ...doc.data() },
@@ -91,7 +93,6 @@ const myTrips = () => {
 
     getUserTrips();
   }, [authLoading, user, navigate]); // include navigate in deps
-
 
   // purpose:
   // The imagesLoaded state is set to true only after all images in the userTrips array have either loaded successfully or failed to load.
@@ -114,7 +115,7 @@ const myTrips = () => {
       if (loadedCount === userTrips.length) {
         setImagesLoaded(true);
       }
-      // If the number of loaded images equals the total number of trips (userTrips.length), 
+      // If the number of loaded images equals the total number of trips (userTrips.length),
       // it sets imagesLoaded to true, indicating that all images are ready.
     };
 
@@ -131,10 +132,10 @@ const myTrips = () => {
     });
 
     return () => clearTimeout(timeout);
-   // This ensures that the timeout is canceled,
-   // if the component is unmounted or the userTrips array changes before the timeout completes.
+    // This ensures that the timeout is canceled,
+    // if the component is unmounted or the userTrips array changes before the timeout completes.
   }, [userTrips]);
-  // The useEffect hook runs whenever the userTrips array changes. 
+  // The useEffect hook runs whenever the userTrips array changes.
   // This ensures that the logic is executed whenever new trips are added or the array is updated.
 
   const isReady = !loading && imagesLoaded;
