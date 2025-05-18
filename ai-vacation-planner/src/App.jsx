@@ -1,10 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import ViewTrip from "./pages/ViewTrip";
-import CreateTrip from "./pages/CreateTrip";
-import MyTrips from "./pages/MyTrips";
-import MainLayout from "./layouts/MainLayout";
-import NotFound from "./pages/NotFound";
+import HomePage from "@/pages/HomePage";
+import ViewTrip from "@/pages/ViewTrip";
+import CreateTrip from "@/pages/CreateTrip";
+import MyTrips from "@/pages/MyTrips";
+import MainLayout from "@/layouts/MainLayout";
+import NotFound from "@/pages/NotFound";
 
 function App() {
   return (
