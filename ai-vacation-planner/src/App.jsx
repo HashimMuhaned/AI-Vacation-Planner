@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import HomePage from "@/pages/HomePage";
 import ViewTrip from "@/pages/ViewTrip";
 import CreateTrip from "@/pages/CreateTrip";
-import MyTrips from "@/pages/MyTrips";
+import MyTrips from "@/pages/myTrips";
 import MainLayout from "@/layouts/MainLayout";
 import NotFound from "@/pages/NotFound";
 
