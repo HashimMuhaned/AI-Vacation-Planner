@@ -10,7 +10,7 @@ const OpenCageAutocomplete = ({ value, onChange, placeholder }) => {
   const [touched, setTouched] = useState(false);
   const wrapperRef = useRef(null); // For detecting outside clicks
 
-  const OPENCAGE_API_KEY = import.meta.env.VITE_OPENCAGE_API_KEY; // Replace this with your API key
+  const OPENCAGE_API_KEY = process.env.VITE_OPENCAGE_API_KEY; // Replace this with your API key
 
   useEffect(() => {
     // This debounce mechanism ensures that the API call is only made after the user has stopped typing for 300ms

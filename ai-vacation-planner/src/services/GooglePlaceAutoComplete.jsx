@@ -35,7 +35,7 @@ export const useLoadGoogleMaps = () => {
       const script = document.createElement("script");
       // The script's src attribute is set to the Google Maps API URL, including the API key and the places library.
       script.src = `https://maps.googleapis.com/maps/api/js?key=${
-        import.meta.env.VITE_MAPS_API_KEY 
+        process.env.VITE_MAPS_API_KEY 
       }&libraries=places`;
       script.async = true; // Ensures the script is loaded asynchronously, preventing it from blocking the page rendering.
       script.defer = true; // Ensures the script is executed after the document has been parsed.

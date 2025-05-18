@@ -10,7 +10,7 @@ const GeoapifyAutocomplete = ({ value, onChange, placeholder }) => {
   const [touched, setTouched] = useState(false);
   const wrapperRef = useRef(null);
 
-  const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY;
+  const GEOAPIFY_API_KEY = process.env.VITE_GEOAPIFY_API_KEY;
 
   useEffect(() => {
     // This debounce mechanism ensures that the API call is only made after the user has stopped typing for 300ms

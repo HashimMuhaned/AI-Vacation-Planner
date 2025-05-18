@@ -10,7 +10,7 @@ const GeoNamesAutocomplete = ({ value, onChange, placeholder }) => {
   const [touched, setTouched] = useState(false);
   const wrapperRef = useRef(null);
 
-  const USERNAME = import.meta.env.VITE_GEONAMES_USERNAME; // Required
+  const USERNAME = process.env.VITE_GEONAMES_USERNAME; // Required
 
   useEffect(() => {
     // This debounce mechanism ensures that the API call is only made after the user has stopped typing for 300ms
