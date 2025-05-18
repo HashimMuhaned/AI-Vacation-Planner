@@ -85,7 +85,7 @@ const Header = () => {
 
   return (
     <nav
-      className={`px-5 p-3 flex justify-between items-center md:px-40 fixed top-0 left-0 right-0 transition-all duration-300 z-99 ${
+      className={`px-5 p-3 flex justify-between items-center md:px-40 fixed top-0 left-0 right-0 transition-all duration-300 z-80 ${
         isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-4"
       }`}
     >
@@ -196,7 +196,7 @@ const Header = () => {
               </motion.div>
             ) : null}
             <div className="hidden md:block">
-              <Popover>
+              <Popover className="z-99">
                 <PopoverTrigger>
                   <img
                     src={userPicture}
@@ -304,7 +304,7 @@ const Header = () => {
           >
             {user ? (
               <div>
-                <Popover>
+                <Popover className="z-99">
                   <PopoverTrigger>
                     <div className="flex items-center gap-2 cursor-pointer w-full">
                       <img
@@ -320,7 +320,7 @@ const Header = () => {
                       </div>
                     </div>
                   </PopoverTrigger>
-                  <PopoverContent className="z-99">
+                  <PopoverContent>
                     <div className="flex flex-col gap-2 p-2">
                       {/* <div className="flex items-center gap-2">
                         <div>

@@ -28,7 +28,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
 };
 
-const myTrips = () => {
+const MyTrips = () => {
   const navigate = useNavigate();
   const [userTrips, setUserTrips] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -200,4 +200,4 @@ const myTrips = () => {
   );
 };
 
-export default myTrips;
+export default MyTrips;
