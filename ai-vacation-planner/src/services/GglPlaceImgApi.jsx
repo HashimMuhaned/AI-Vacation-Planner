@@ -11,7 +11,7 @@ export const getPlaceImage = async (textQuery) => {
     {
       headers: {
         "Content-Type": "application/json",
-        "X-Goog-Api-Key": process.env.VITE_MAPS_API_KEY,
+        "X-Goog-Api-Key": import.meta.env.VITE_MAPS_API_KEY,
         "X-Goog-FieldMask": "places.displayName,places.photos,places.id", // Should be a string, not an array
       },
     }
@@ -33,7 +33,7 @@ export const getCountryImage = async (countryName) => {
       {
         headers: {
           "Content-Type": "application/json",
-          "X-Goog-Api-Key": process.env.VITE_MAPS_API_KEY,
+          "X-Goog-Api-Key": import.meta.env.VITE_MAPS_API_KEY,
           "X-Goog-FieldMask": "places.displayName,places.photos,places.id",
         },
       }
@@ -66,7 +66,7 @@ export const getCountryImagesUnSplash = async (placeId) => {
   const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
     placeId // The placeId is URL-encoded to ensure it is safe for use in the query string.
   )}&client_id=${
-    process.env.VITE_UNSPLASH_ACCESS_KEY
+    import.meta.env.VITE_UNSPLASH_ACCESS_KEY
   }&per_page=10&orientation=landscape`;
 
   try {

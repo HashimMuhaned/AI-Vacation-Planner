@@ -29,13 +29,13 @@ export const useLoadGoogleMaps = () => {
       }
     };
 
-    // If no such script exists (scriptExists is null), 
+    // If no such script exists (scriptExists is null),
     // the code proceeds to dynamically create and append the script to the document.
     if (!scriptExists) {
       const script = document.createElement("script");
       // The script's src attribute is set to the Google Maps API URL, including the API key and the places library.
       script.src = `https://maps.googleapis.com/maps/api/js?key=${
-        process.env.VITE_MAPS_API_KEY 
+        import.meta.env.VITE_MAPS_API_KEY
       }&libraries=places`;
       script.async = true; // Ensures the script is loaded asynchronously, preventing it from blocking the page rendering.
       script.defer = true; // Ensures the script is executed after the document has been parsed.
