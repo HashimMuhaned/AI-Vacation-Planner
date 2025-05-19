@@ -42,7 +42,7 @@ const Header = () => {
   // ); // Fallback image
   const [userName, setUserName] = useState(user?.name);
   const [userEmail, setUserEmail] = useState(user?.email);
-  const userPicture = user?.picture || "https://via.placeholder.com/150"; // Fallback image
+  const userPicture = user?.picture || ""; // Fallback image
 
   const handleLogout = () => {
     setLoading(true);

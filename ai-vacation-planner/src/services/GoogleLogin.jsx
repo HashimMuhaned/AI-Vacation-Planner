@@ -23,7 +23,7 @@ export default function GoogleLoginButton({ onSuccess }) {
         picture: user.photoURL,
         uid: user.uid,
       };
-
+      // console.log("User profile:", userProfile);
       setUser(userProfile);
       setLocalStorageItem("user", JSON.stringify(userProfile));
       showToast("white", "green", "Login successful!");
