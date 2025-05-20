@@ -10,6 +10,7 @@ import { doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/services/FirebaseConfig";
 import { showToast } from "@/components/ui/sonner";
 import { useParams, useNavigate } from "react-router-dom";
+import { IoCheckmarkSharp } from "react-icons/io5";
 import {
   Carousel,
   CarouselContent,
@@ -209,9 +210,21 @@ const InfoSection = ({ tripData }) => {
             <div>
               <Button
                 onClick={handleCopy}
-                className={`${copied ? "w-[150px]" : "w-[48px]"}`}
+                className={copied ? "w-[48px] md:w-[150px]" : "w-[48px]"}
               >
-                {copied ? "Copied to clipboard!" : <FaShare />}
+                {copied ? (
+                  <>
+                    {/* Show checkmark on small screens */}
+                    <IoCheckmarkSharp className="block md:hidden" />
+
+                    {/* Show text on medium and larger screens */}
+                    <span className="hidden md:block">
+                      Copied to clipboard!
+                    </span>
+                  </>
+                ) : (
+                  <FaShare />
+                )}
               </Button>
             </div>
           </div>
