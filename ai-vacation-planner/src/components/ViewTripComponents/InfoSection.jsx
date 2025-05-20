@@ -37,6 +37,7 @@ const InfoSection = ({ tripData }) => {
   const [count, setCount] = useState(0);
   const [openDialog, setOpenDialog] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const { showLoading, hideLoading } = useLoading(); // Access context
   const { tripId } = useParams();
@@ -102,6 +103,17 @@ const InfoSection = ({ tripData }) => {
     }
   };
 
+  const handleCopy = async () => {
+    try {
+      // Copy the current URL to the clipboard, to share the trip
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Show "Copied" for 2 seconds
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
   // ✅ Until ready, show nothing or local loader if needed
   if (!isReady) return null;
 
@@ -157,38 +169,51 @@ const InfoSection = ({ tripData }) => {
               🧍 No. Of travelers: {tripData?.userSelection?.travelers}
             </h2>
           </div>
-          <div className="flex flex-col md:flex gap-3">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button className={"bg-red-500 hover:bg-red-400 text-white"}>
-                  <FaRegTrashCan />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete your trip and remove your data
-                    from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={(e) => {
-                      e.preventDefault();
-                      user ? deleteTrip() : setOpenDialog(true);
-                    }}
-                    className="bg-red-500 hover:bg-red-400 text-white"
-                  >
-                    Continue
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            <Button>
-              <FaShare />
-            </Button>
+
+          <div className="flex flex-col items-end gap-3">
+            {/* Trash Button Container */}
+            <div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button className="bg-red-500 hover:bg-red-400 text-white w-[48px] justify-center">
+                    <FaRegTrashCan />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete your trip and remove your
+                      data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => {
+                        e.preventDefault();
+                        user ? deleteTrip() : setOpenDialog(true);
+                      }}
+                      className="bg-red-500 hover:bg-red-400 text-white"
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+
+            {/* Share Button Container */}
+            <div>
+              <Button
+                onClick={handleCopy}
+                className={`${copied ? "w-[150px]" : "w-[48px]"}`}
+              >
+                {copied ? "Copied to clipboard!" : <FaShare />}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
