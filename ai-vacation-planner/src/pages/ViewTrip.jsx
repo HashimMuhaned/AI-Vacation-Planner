@@ -12,7 +12,7 @@ import { FlightDisplayCard } from "./components/FlightDisplayCard";
 import { useLoading } from "@/context/ViewTripLoadingContext"; // ✅ Import global loading context
 
 const ViewTrip = () => {
-  const { tripId } = useParams(); // getting the tripId from the URL 
+  const { tripId } = useParams(); // getting the tripId from the URL
   const [tripData, setTripData] = useState(null); // ✅ State to hold trip data
   const { showLoading, hideLoading } = useLoading(); // ✅ Use loading context
 
